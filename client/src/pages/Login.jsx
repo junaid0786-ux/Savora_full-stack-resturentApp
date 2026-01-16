@@ -47,7 +47,7 @@ const Login = () => {
     try {
       const res = await api.post("/auth/login", formData);
       toast.success(res.data.message || "Login Successful!");
-      navigate("/");
+      navigate("/user-dashboard");
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.message || "Invalid credentials");

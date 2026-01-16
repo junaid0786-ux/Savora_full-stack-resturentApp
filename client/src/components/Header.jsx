@@ -7,7 +7,6 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           
-          {/* Brand Logo */}
           <Link to="/" className="group">
             <span
               style={{ fontFamily: "var(--font-outfit)" }}
@@ -18,7 +17,6 @@ const Header = () => {
             </span>
           </Link>
 
-          {/* Navigation Links */}
           <nav 
             className="hidden md:flex gap-10 items-center"
             style={{ fontFamily: "var(--font-poppins)" }}
@@ -33,15 +31,14 @@ const Header = () => {
                   className={({ isActive }) =>
                     `relative text-base tracking-wide transition-colors duration-300 group ${
                       isActive
-                        ? "text-rose-600 font-bold" // Active State
-                        : "text-gray-600 font-medium hover:text-rose-600" // Inactive State
+                        ? "text-rose-600 font-bold" 
+                        : "text-gray-600 font-medium hover:text-rose-600" 
                     }`
                   }
                 >
                   {({ isActive }) => (
                     <>
                       {item}
-                      {/* Modern Sliding Underline Animation */}
                       <span
                         className={`absolute -bottom-1 left-0 h-0.5 bg-rose-600 transition-all duration-300 ease-out ${
                           isActive ? "w-full" : "w-0 group-hover:w-full"
@@ -54,7 +51,6 @@ const Header = () => {
             })}
           </nav>
 
-          {/* Auth Buttons */}
           <div 
             className="flex items-center gap-4"
             style={{ fontFamily: "var(--font-poppins)" }}

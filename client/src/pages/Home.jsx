@@ -217,7 +217,6 @@ const Home = () => {
       <section className="py-20">
         <div className="max-w-5xl mx-auto px-4">
           <div className="bg-gray-900 rounded-3xl p-10 lg:p-16 text-center relative overflow-hidden">
-            {/* Decorative circles */}
             <div className="absolute top-0 left-0 w-64 h-64 bg-rose-600 rounded-full blur-[100px] opacity-20"></div>
             <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-600 rounded-full blur-[100px] opacity-20"></div>
 
@@ -243,6 +242,7 @@ const Home = () => {
         </div>
       </section>
     </div>
+    
   );
 };
 
