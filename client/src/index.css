@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+:root {
+  /* Brand Colors */
+  --color-primary: #e11d48; /* Rose Red - Elegant, not aggressive */
+  --color-hover: #be123c;   /* Your original deep red for hover */
+
+  /* Backgrounds */
+  --bg-main: #f9fafb;       /* Cool Gray 50 (Very clean/professional) */
+  --bg-card: #ffffff;       /* Pure White */
+
+  /* Text */
+  --text-main: #0f172a;     /* Slate 900 */
+  --text-muted: #64748b;    /* Slate 500 */
+  --text-light: #ffffff;
+
+
+  --font-outfit: "Outfit", sans-serif;
+  
+  /* Set Poppins as the default for body text */
+  --font-poppins: "Poppins", sans-serif;
+}
+
+body {
+  font-family: var(--font-poppins);
+}
+
+.font-brand {
+  font-family: var(--font-outfit);
+}
