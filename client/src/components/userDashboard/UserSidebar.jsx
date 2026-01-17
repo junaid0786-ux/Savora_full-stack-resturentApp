@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import {
-  FileSearchCorner,
+  LayoutDashboard,
   UserRound,
   ArchiveRestore,
   ArrowLeftRight,
@@ -11,6 +11,10 @@ import {
 const UserSidebar = ({ active, setActive }) => {
   const [expanded, setExpanded] = useState(true);
 
+  const menuItem = {
+    
+  }
+
   return (
     <div
       className={`h-full bg-white border-r border-gray-200 shadow-sm transition-all duration-300 ease-in-out flex flex-col
@@ -20,13 +24,13 @@ const UserSidebar = ({ active, setActive }) => {
       <div className="flex items-center h-20 px-2 border-b border-gray-100 shrink-0">
         <button
           onClick={() => setExpanded(!expanded)}
-          className="p-2 rounded-lg hover:bg-rose-50 text-gray-600 hover:text-rose-600 transition-colors bg-white z-10 w-16 flex justify-center items-center"
+          className="p-2 rounded-lg hover:bg-rose-50 text-gray-600 hover:text-rose-600 transition-colors bg-white z-10 w-16 flex justify-center items-center cursor-pointer"
         >
           <Menu size={24} />
         </button>
 
         <div
-          className={`font-bold text-xl text-rose-600 overflow-hidden transition-all duration-300 whitespace-nowrap
+          className={`font-bold text-xl text-gray-600 overflow-hidden transition-all duration-300 whitespace-nowrap
             ${expanded ? "w-40 ml-2 opacity-100" : "w-0 ml-0 opacity-0"}
           `}
         >
@@ -46,7 +50,7 @@ const UserSidebar = ({ active, setActive }) => {
           `}
         >
           <div className="min-w-16 flex justify-center items-center">
-            <FileSearchCorner size={22} />
+            <LayoutDashboard size={22} />
           </div>
 
           <span

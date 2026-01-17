@@ -146,14 +146,14 @@ const Login = () => {
           <div className="flex justify-between items-center text-sm mt-2">
             <p className="text-gray-600">
               New here?
-             <span className="ml-1">
-               <Link
-                to="/register"
-                className="text-rose-600 font-bold hover:text-rose-800 hover:underline"
-              >
-                Register
-              </Link>
-             </span>
+              <span className="ml-1">
+                <Link
+                  to="/register"
+                  className="text-rose-600 font-bold hover:text-rose-800 hover:underline"
+                >
+                  Register
+                </Link>
+              </span>
             </p>
 
             <div className="text-gray-500 hover:text-rose-600 font-medium hover:underline transition-colors">

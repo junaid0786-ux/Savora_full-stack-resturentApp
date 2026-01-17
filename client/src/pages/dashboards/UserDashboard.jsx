@@ -10,18 +10,18 @@ const UserDashboard = () => {
   const [active, setActive] = useState("overview");
 
   return (
-    <div className="flex w-full h-screen bg-rose-50 overflow-hidden">
-      <UserSidebar active={active} setActive={setActive} />
+    <div className="flex w-full h-[90vh] bg-rose-50 overflow-hidden">
+      <div>
+        <UserSidebar active={active} setActive={setActive} />
+      </div>
 
-      <main className="h-full overflow-y-auto p-4 transition-all duration-300">
-        <div className="max-w-7xl mx-auto">
-          {active === "overview" && <UserOverview />}
-          {active === "profile" && <UserProfile />}
-          {active === "orders" && <UserOrders />}
-          {active === "transections" && <UserTransctions />}
-          {active === "help" && <UserHelpDesk />}
-        </div>
-      </main>
+      <div className="h-screen overflow-y-auto p-4 transition-all duration-300 w-full">
+        {active === "overview" && <UserOverview />}
+        {active === "profile" && <UserProfile />}
+        {active === "orders" && <UserOrders />}
+        {active === "transections" && <UserTransctions />}
+        {active === "help" && <UserHelpDesk />}
+      </div>
     </div>
   );
 };
