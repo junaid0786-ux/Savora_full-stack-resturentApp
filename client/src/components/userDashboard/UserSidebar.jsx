@@ -11,10 +11,6 @@ import {
 const UserSidebar = ({ active, setActive }) => {
   const [expanded, setExpanded] = useState(true);
 
-  const menuItem = {
-    
-  }
-
   return (
     <div
       className={`h-full bg-white border-r border-gray-200 shadow-sm transition-all duration-300 ease-in-out flex flex-col
