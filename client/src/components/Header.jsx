@@ -6,7 +6,6 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          
           <Link to="/" className="group">
             <span
               style={{ fontFamily: "var(--font-outfit)" }}
@@ -17,13 +16,13 @@ const Header = () => {
             </span>
           </Link>
 
-          <nav 
+          <nav
             className="hidden md:flex gap-10 items-center"
             style={{ fontFamily: "var(--font-poppins)" }}
           >
             {["Home", "About", "Contact"].map((item) => {
               const path = item === "Home" ? "/" : `/${item.toLowerCase()}`;
-              
+
               return (
                 <NavLink
                   key={item}
@@ -31,8 +30,8 @@ const Header = () => {
                   className={({ isActive }) =>
                     `relative text-base tracking-wide transition-colors duration-300 group ${
                       isActive
-                        ? "text-rose-600 font-bold" 
-                        : "text-gray-600 font-medium hover:text-rose-600" 
+                        ? "text-rose-600 font-bold"
+                        : "text-gray-600 font-medium hover:text-rose-600"
                     }`
                   }
                 >
@@ -51,7 +50,7 @@ const Header = () => {
             })}
           </nav>
 
-          <div 
+          <div
             className="flex items-center gap-4"
             style={{ fontFamily: "var(--font-poppins)" }}
           >
