@@ -61,7 +61,7 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex justify-center items-center p-4 sm:p-8 font-sans">
+    <div className="min-h-[90vh] bg-rose-50 flex justify-center items-center sm:p-8 font-(--font-outfit)">
       <div className="max-w-5xl w-full bg-gray-100 rounded-2xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
         <div className="bg-rose-600 text-white p-10 flex flex-col justify-between relative">
           <div className="relative z-10">
