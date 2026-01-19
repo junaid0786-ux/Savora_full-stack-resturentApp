@@ -11,6 +11,7 @@ import {
 
 const UserOverview = () => {
   const [currentDate, setCurrentDate] = useState("");
+  const [userName, setUserName] = useState("User");
 
   useEffect(() => {
     const date = new Date();
@@ -21,6 +22,17 @@ const UserOverview = () => {
         month: "short",
       }),
     );
+
+    try {
+      const storedUser = sessionStorage.getItem("user");
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        const fullName = parsedUser.name || parsedUser.fullName || "User";
+        setUserName(fullName.split(" ")[0]);
+      }
+    } catch (error) {
+      console.error("Failed to load user name:", error);
+    }
   }, []);
 
   return (
@@ -28,7 +40,7 @@ const UserOverview = () => {
       <div className="flex justify-between items-end border-b border-gray-100 pb-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight font-brand">
-            Welcome back, <span className="text-rose-600">Junaid</span>
+            Welcome back, <span className="text-rose-600">{userName}</span>
           </h1>
         </div>
         <div className="text-right hidden sm:block">

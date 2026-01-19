@@ -3,9 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../config/Api";
 import { Mail, Lock, LogIn, Loader2 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
+  const { setUser, setIsLogin } = useAuth();
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -46,10 +49,21 @@ const Login = () => {
     setIsLoading(true);
     try {
       const res = await api.post("/auth/login", formData);
-      toast.success(res.data.message || "Login Successful!");
-      navigate("/user-dashboard");
+
+      if (res.data) {
+        toast.success(res.data.message || "Login Successful!");
+
+        const userData = res.data.data || res.data.user;
+
+        sessionStorage.setItem("user", JSON.stringify(userData));
+
+        setUser(userData);
+        setIsLogin(true);
+
+        navigate("/user-dashboard");
+      }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error(error.response?.data?.message || "Invalid credentials");
     } finally {
       setIsLoading(false);

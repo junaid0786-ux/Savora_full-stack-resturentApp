@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast"; //
+import toast from "react-hot-toast";
+import { useAuth } from "../../context/AuthContext";
 import {
   LayoutDashboard,
   UserRound,
@@ -13,11 +14,12 @@ import {
 
 const UserSidebar = ({ active, setActive, expanded, setExpanded }) => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
     try {
+      logout();
       toast.success("Logged out successfully!");
-
       navigate("/");
     } catch (error) {
       console.error("Logout Error:", error);
