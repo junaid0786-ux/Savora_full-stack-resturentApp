@@ -52,11 +52,8 @@ const Login = () => {
 
       if (res.data) {
         toast.success(res.data.message || "Login Successful!");
-
         const userData = res.data.data || res.data.user;
-
         sessionStorage.setItem("user", JSON.stringify(userData));
-
         setUser(userData);
         setIsLogin(true);
 
