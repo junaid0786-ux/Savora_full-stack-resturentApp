@@ -61,7 +61,7 @@ const UserProfile = () => {
     setLoading(true);
 
     try {
-      const response = await api.put("/auth/update-profile", formData);
+      const response = await api.put("/user/update-profile", formData);
 
       if (response.data.success) {
         const updatedUser = { ...user, ...formData };
@@ -183,7 +183,7 @@ const UserProfile = () => {
                     });
                   setIsEditing(!isEditing);
                 }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 font-brand uppercase tracking-wide
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 font-brand uppercase tracking-wide cursor-pointer
                   ${
                     isEditing
                       ? "bg-gray-200 text-gray-600 hover:bg-gray-300"
@@ -268,11 +268,11 @@ const UserProfile = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      disabled={!isEditing}
-                      className={`w-full pl-12 pr-4 py-3 rounded-xl border outline-none transition-all text-sm font-medium font-poppins
+                      disabled
+                      className={`w-full pl-12 pr-4 py-3 rounded-xl border outline-none transition-all text-sm font-medium font-poppins 
                           ${
                             isEditing
-                              ? "bg-white border-gray-200 focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10"
+                              ? "bg-white border-gray-200 focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10 cursor-not-allowed "
                               : "bg-(--bg-main) border-transparent text-gray-600 cursor-not-allowed"
                           }`}
                     />
@@ -307,7 +307,7 @@ const UserProfile = () => {
             </div>
 
             {isEditing && (
-              <div className="p-6 border-t border-gray-100 bg-(--bg-main)/30 flex justify-end gap-3 shrink-0 animate-fade-in">
+              <div className="p-6 border-t border-gray-100 bg-(--bg-main)/30 flex justify-end gap-3 shrink-0 animate-fade-in ">
                 <button
                   onClick={() => {
                     setFormData({
@@ -317,14 +317,14 @@ const UserProfile = () => {
                     setIsEditing(false);
                   }}
                   disabled={loading}
-                  className="px-6 py-2.5 rounded-xl text-sm font-bold text-(--text-muted) hover:bg-gray-100 transition-colors font-brand"
+                  className="px-6 py-2.5 rounded-xl text-sm font-bold text-(--text-muted) hover:bg-gray-100 transition-colors font-brand cursor-pointer"
                 >
                   Discard
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={loading}
-                  className="px-8 py-2.5 rounded-xl text-sm font-bold bg-(--color-primary) text-white hover:bg-(--color-hover) shadow-lg shadow-(--color-primary)/20 transition-all flex items-center gap-2 font-brand disabled:opacity-70"
+                  className="px-8 py-2.5 rounded-xl text-sm font-bold bg-(--color-primary) text-white hover:bg-(--color-hover) shadow-lg shadow-(--color-primary)/20 transition-all flex items-center gap-2 font-brand disabled:opacity-70 cursor-pointer"
                 >
                   {loading ? (
                     "Saving..."
