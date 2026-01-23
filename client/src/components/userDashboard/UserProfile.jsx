@@ -61,7 +61,7 @@ const UserProfile = () => {
     setLoading(true);
 
     try {
-      const response = await api.put("/user/update-profile", formData);
+      const response = await api.put("/auth/update-profile", formData);
 
       if (response.data.success) {
         const updatedUser = { ...user, ...formData };
