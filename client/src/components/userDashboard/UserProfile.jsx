@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   User,
   Mail,
@@ -11,30 +11,76 @@ import {
   CheckCircle,
   X,
   Wallet,
-  Calendar,
   Star,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import toast from "react-hot-toast";
+import api from "../../config/Api";
 
 const UserProfile = () => {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
 
-  const displayName = user?.fullName || user?.name || "User";
+  const [formData, setFormData] = useState({
+    fullName: user?.fullName || user?.name || "User",
+    email: user?.email || "",
+    mobileNumber: user?.mobileNumber || user?.phone || "",
+    address: user?.address || "",
+    wallet: user?.wallet || 0,
+    points: user?.points || 0,
+  });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        fullName: user.fullName || user.name || "",
+        email: user.email || "",
+        mobileNumber: user.mobileNumber || user.phone || "",
+        address: user.address || "",
+        wallet: user.wallet || 0,
+        points: user.points || 0,
+      });
+    }
+  }, [user]);
+
+  const displayName = formData.fullName || "User";
   const initials = displayName.charAt(0).toUpperCase();
 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setUser({ ...userData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    let key = name;
+    if (name === "name") key = "fullName";
+    if (name === "phone") key = "mobileNumber";
+
+    setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setLoading(true);
-    setTimeout(() => {
+
+    try {
+      const response = await api.put("/auth/update-profile", formData);
+
+      if (response.data.success) {
+        const updatedUser = { ...user, ...formData };
+        setUser(updatedUser);
+        sessionStorage.setItem("user", JSON.stringify(updatedUser));
+        toast.success(response.data.message || "Profile updated successfully!");
+        setIsEditing(false);
+      } else {
+        toast.error(response.data.message || "Update failed");
+      }
+    } catch (error) {
+      console.error("Profile Update Error:", error);
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to update profile. Please try again.",
+      );
+    } finally {
       setLoading(false);
-      setIsEditing(false);
-    }, 800);
+    }
   };
 
   return (
@@ -68,18 +114,22 @@ const UserProfile = () => {
               {displayName}
             </h2>
             <p className="text-white/80 text-sm mb-6 z-10 font-medium">
-              {user.email}
+              {formData.email}
             </p>
 
             <div className="grid grid-cols-2 gap-3 w-full z-10">
               <div className="bg-white/10 rounded-xl p-3 backdrop-blur-md border border-white/10">
-                <p className="text-2xl font-bold font-brand">{user.wallet}</p>
+                <p className="text-2xl font-bold font-brand">
+                  ₹{formData.wallet}
+                </p>
                 <p className="text-[10px] uppercase tracking-wider opacity-80 font-bold flex items-center justify-center gap-1">
-                  <Wallet size={10} /> 00.0
+                  <Wallet size={10} /> Wallet
                 </p>
               </div>
               <div className="bg-white/10 rounded-xl p-3 backdrop-blur-md border border-white/10">
-                <p className="text-2xl font-bold font-brand">0.00</p>
+                <p className="text-2xl font-bold font-brand">
+                  {formData.points}
+                </p>
                 <p className="text-[10px] uppercase tracking-wider opacity-80 font-bold flex items-center justify-center gap-1">
                   <Star size={10} /> Points
                 </p>
@@ -125,13 +175,20 @@ const UserProfile = () => {
               </div>
 
               <button
-                onClick={() => setIsEditing(!isEditing)}
+                onClick={() => {
+                  if (isEditing)
+                    setFormData({
+                      ...user,
+                      fullName: user.fullName || user.name,
+                    });
+                  setIsEditing(!isEditing);
+                }}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 font-brand uppercase tracking-wide
-                   ${
-                     isEditing
-                       ? "bg-gray-200 text-gray-600 hover:bg-gray-300"
-                       : "border border-(--color-primary) text-(--color-primary) hover:bg-(--color-primary) hover:text-white"
-                   }`}
+                  ${
+                    isEditing
+                      ? "bg-gray-200 text-gray-600 hover:bg-gray-300"
+                      : "border border-(--color-primary) text-(--color-primary) hover:bg-(--color-primary) hover:text-white"
+                  }`}
               >
                 {isEditing ? (
                   <>
@@ -159,15 +216,15 @@ const UserProfile = () => {
                     <input
                       type="text"
                       name="name"
-                      value={user.fullName}
+                      value={formData.fullName}
                       onChange={handleChange}
                       disabled={!isEditing}
                       className={`w-full pl-12 pr-4 py-3 rounded-xl border outline-none transition-all text-sm font-medium font-poppins
-                         ${
-                           isEditing
-                             ? "bg-white border-gray-200 focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10 "
-                             : "bg-(--bg-main) border-transparent text-gray-600 cursor-not-allowed"
-                         }`}
+                          ${
+                            isEditing
+                              ? "bg-white border-gray-200 focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10 "
+                              : "bg-(--bg-main) border-transparent text-gray-600 cursor-not-allowed"
+                          }`}
                     />
                   </div>
                 </div>
@@ -184,15 +241,15 @@ const UserProfile = () => {
                     <input
                       type="text"
                       name="phone"
-                      value={user.mobileNumber}
+                      value={formData.mobileNumber}
                       onChange={handleChange}
                       disabled={!isEditing}
                       className={`w-full pl-12 pr-4 py-3 rounded-xl border outline-none transition-all text-sm font-medium font-poppins
-                         ${
-                           isEditing
-                             ? "bg-white border-gray-200 focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10"
-                             : "bg-(--bg-main) border-transparent text-gray-600 cursor-not-allowed"
-                         }`}
+                          ${
+                            isEditing
+                              ? "bg-white border-gray-200 focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10"
+                              : "bg-(--bg-main) border-transparent text-gray-600 cursor-not-allowed"
+                          }`}
                     />
                   </div>
                 </div>
@@ -209,15 +266,15 @@ const UserProfile = () => {
                     <input
                       type="email"
                       name="email"
-                      value={user.email}
+                      value={formData.email}
                       onChange={handleChange}
                       disabled={!isEditing}
                       className={`w-full pl-12 pr-4 py-3 rounded-xl border outline-none transition-all text-sm font-medium font-poppins
-                         ${
-                           isEditing
-                             ? "bg-white border-gray-200 focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10"
-                             : "bg-(--bg-main) border-transparent text-gray-600 cursor-not-allowed"
-                         }`}
+                          ${
+                            isEditing
+                              ? "bg-white border-gray-200 focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10"
+                              : "bg-(--bg-main) border-transparent text-gray-600 cursor-not-allowed"
+                          }`}
                     />
                   </div>
                 </div>
@@ -228,21 +285,21 @@ const UserProfile = () => {
                   </label>
                   <div className="relative group">
                     <MapPin
-                      className={`absolute left-4 top-3.5 transition-colors ${isEditing ? "text-(--color-primary)" : "text-gray-400" }`}
+                      className={`absolute left-4 top-3.5 transition-colors ${isEditing ? "text-(--color-primary)" : "text-gray-400"}`}
                       size={18}
                     />
                     <input
                       type="text"
                       name="address"
-                      value={user.address}
+                      value={formData.address}
                       onChange={handleChange}
                       disabled={!isEditing}
                       className={`w-full pl-12 pr-4 py-3 rounded-xl border outline-none transition-all text-sm font-medium font-poppins text-ellipsis
-                         ${
-                           isEditing
-                             ? "bg-white border-gray-200 focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10"
-                             : "bg-(--bg-main) border-transparent text-gray-600 cursor-not-allowed"
-                         }`}
+                          ${
+                            isEditing
+                              ? "bg-white border-gray-200 focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10"
+                              : "bg-(--bg-main) border-transparent text-gray-600 cursor-not-allowed"
+                          }`}
                     />
                   </div>
                 </div>
@@ -252,7 +309,13 @@ const UserProfile = () => {
             {isEditing && (
               <div className="p-6 border-t border-gray-100 bg-(--bg-main)/30 flex justify-end gap-3 shrink-0 animate-fade-in">
                 <button
-                  onClick={() => setIsEditing(false)}
+                  onClick={() => {
+                    setFormData({
+                      ...user,
+                      fullName: user.fullName || user.name,
+                    });
+                    setIsEditing(false);
+                  }}
                   disabled={loading}
                   className="px-6 py-2.5 rounded-xl text-sm font-bold text-(--text-muted) hover:bg-gray-100 transition-colors font-brand"
                 >

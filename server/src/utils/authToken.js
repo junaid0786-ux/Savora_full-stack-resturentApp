@@ -1,24 +1,25 @@
 import jwt from "jsonwebtoken";
 
-export const genToken = (user,res) => {
+export const genToken = (user, res) => {
   try {
     const payload = {
-      id: user._id,
+      _id: user._id,
       role: user.role || "admin",
     };
-    const token = jwt.sign(payload,process.env.JWT_SECRET, {
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
-    console.log(token);
 
     res.cookie("Oreo", token, {
-      maxage: 1000 * 60 * 60 * 24,
+      maxAge: 24 * 60 * 60 * 1000,
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     });
+
+    console.log("Oreo cookie set:", token);
   } catch (error) {
     throw error;
   }
 };
-

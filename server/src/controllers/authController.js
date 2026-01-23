@@ -4,21 +4,14 @@ import { genToken } from "../utils/authToken.js";
 
 export const UserRegister = async (req, res, next) => {
   try {
-    console.log(req.body);
-
-    //accept data from Frontend
     const { fullName, email, mobileNumber, password } = req.body;
 
-    //verify that all data exist
     if (!fullName || !email || !mobileNumber || !password) {
-      const error = new Error("All feilds required");
+      const error = new Error("All fields required");
       error.statusCode = 400;
       return next(error);
     }
 
-    console.log(fullName, email, mobileNumber, password);
-
-    //Check for duplaicate user before registration
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       const error = new Error("Email already registered");
@@ -26,22 +19,17 @@ export const UserRegister = async (req, res, next) => {
       return next(error);
     }
 
-    //encrypt the password
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
 
-    //save data to database
-    const newUser = await User.create({
+    await User.create({
       fullName,
       email,
       mobileNumber,
       password: hashPassword,
     });
 
-    // send response to Frontend
-    console.log(newUser);
-    res.status(201).json({ message: "Registration Successfull" });
-    //End
+    res.status(201).json({ message: "Registration Successful" });
   } catch (error) {
     next(error);
   }
@@ -49,17 +37,14 @@ export const UserRegister = async (req, res, next) => {
 
 export const UserLogin = async (req, res, next) => {
   try {
-    //Fetch Data from Frontend
     const { email, password } = req.body;
 
-    //verify that all data exist
     if (!email || !password) {
-      const error = new Error("All feilds required");
+      const error = new Error("All fields required");
       error.statusCode = 400;
       return next(error);
     }
 
-    //Check if user is registred or not
     const existingUser = await User.findOne({ email });
     if (!existingUser) {
       const error = new Error("Email not registered");
@@ -67,21 +52,16 @@ export const UserLogin = async (req, res, next) => {
       return next(error);
     }
 
-    //verify the Password
     const isVerified = await bcrypt.compare(password, existingUser.password);
     if (!isVerified) {
-      const error = new Error("Password didn't match");
-      error.statusCode = 402;
+      const error = new Error("Invalid credentials");
+      error.statusCode = 401;
       return next(error);
     }
 
-    //token generation
-
     genToken(existingUser, res);
 
-    //send message to Frontend
-    res.status(200).json({ message: "Login Successfull", data: existingUser });
-    //End
+    res.status(200).json({ message: "Login Successful", data: existingUser });
   } catch (error) {
     next(error);
   }
@@ -89,7 +69,44 @@ export const UserLogin = async (req, res, next) => {
 
 export const UserLogout = async (req, res, next) => {
   try {
-    res.status(200).json({ message: "Logout Successfull" });
+    res.cookie("token", "", {
+      httpOnly: true,
+      expires: new Date(0),
+    });
+    res.status(200).json({ message: "Logout Successful" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const UpdateUserProfile = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const { fullName, mobileNumber, address, email } = req.body;
+
+    const updateData = {};
+    if (fullName) updateData.fullName = fullName;
+    if (mobileNumber) updateData.mobileNumber = mobileNumber;
+    if (address) updateData.address = address;
+    if (email) updateData.email = email;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true, runValidators: true },
+    ).select("-password");
+
+    if (!updatedUser) {
+      const error = new Error("User not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      data: updatedUser,
+    });
   } catch (error) {
     next(error);
   }
