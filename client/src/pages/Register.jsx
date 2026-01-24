@@ -12,6 +12,7 @@ const Register = () => {
     mobileNumber: "",
     password: "",
     confirmPassword: "",
+    role: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -35,7 +36,7 @@ const Register = () => {
 
     if (
       !/^[\w\.]+@(gmail|outlook|ricr|yahoo)\.(com|in|co\.in)$/.test(
-        formData.email
+        formData.email,
       )
     ) {
       newErrors.email = "Please use a valid email (Gmail, Outlook, Yahoo)";
@@ -53,6 +54,9 @@ const Register = () => {
       newErrors.confirmPassword = "Passwords do not match";
     }
 
+    if (!formData.role) {
+      newErrors.role = "Please select a role";
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -71,6 +75,7 @@ const Register = () => {
         mobileNumber: "",
         password: "",
         confirmPassword: "",
+        role: "",
       });
       navigate("/login");
     } catch (error) {
@@ -89,8 +94,8 @@ const Register = () => {
   };
 
   return (
-    <div className="h-[90vh] bg-rose-50 flex justify-center items-center p-4 font-sans select-none">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden">
+    <div className="h-screen bg-rose-50 flex justify-center items-center p-10 font-sans select-none">
+      <div className="max-w-lg w-full bg-white rounded-2xl shadow-xl overflow-hidden">
         <div className="bg-rose-600 p-8 text-center">
           <h2 className="text-3xl font-bold text-white mb-2">Join Savora</h2>
           <p className="text-rose-100">
@@ -203,6 +208,50 @@ const Register = () => {
                 </p>
               )}
             </div>
+          </div>
+          {/* Role Selection radio buttons */}
+          <div className="space-y-2">
+            <label className="block text-gray-700 font-medium">
+              Select Role:
+            </label>
+            <div className="flex space-x-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="role"
+                  value="manager"
+                  checked={formData.role === "manager"}
+                  onChange={handleChange}
+                  className="mr-2"
+                />
+                Resturent Manager
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="role"
+                  value="customer"
+                  checked={formData.role === "customer"}
+                  onChange={handleChange}
+                  className="mr-2"
+                />
+                Customer
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="role"
+                  value="partner"
+                  checked={formData.role === "partner"}
+                  onChange={handleChange}
+                  className="mr-2"
+                />
+                Delivery Partner
+              </label>
+            </div>
+            {errors.role && (
+              <p className="text-xs text-red-500 mt-1 ml-1">{errors.role}</p>
+            )}
           </div>
 
           <button

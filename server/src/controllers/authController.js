@@ -4,9 +4,9 @@ import { genToken } from "../utils/authToken.js";
 
 export const UserRegister = async (req, res, next) => {
   try {
-    const { fullName, email, mobileNumber, password } = req.body;
+    const { fullName, email, mobileNumber, password, role } = req.body;
 
-    if (!fullName || !email || !mobileNumber || !password) {
+    if (!fullName || !email || !mobileNumber || !password || !role) {
       const error = new Error("All fields required");
       error.statusCode = 400;
       return next(error);
@@ -27,6 +27,7 @@ export const UserRegister = async (req, res, next) => {
       email,
       mobileNumber,
       password: hashPassword,
+      role,
     });
 
     res.status(201).json({ message: "Registration Successful" });
