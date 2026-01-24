@@ -7,9 +7,11 @@ export const AuthProvider = (props) => {
     JSON.parse(sessionStorage.getItem("user")) || null,
   );
   const [isLogin, setIsLogin] = useState(!!user);
+  const [role, setRole] = useState(user?.role || null);
 
   useEffect(() => {
     setIsLogin(!!user);
+    setRole(user?.role || null);
   }, [user]);
 
   const logout = () => {
@@ -24,6 +26,8 @@ export const AuthProvider = (props) => {
     isLogin,
     setIsLogin,
     logout,
+    role,
+    setRole,
   };
 
   return (

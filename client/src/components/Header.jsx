@@ -4,8 +4,20 @@ import { useAuth } from "../context/AuthContext";
 import { Search, Bell, ShoppingCart } from "lucide-react";
 
 const Header = () => {
-  const { user, isLogin } = useAuth();
+  const { user, isLogin, role } = useAuth();
 
+  const handleNavigate = () => {
+    switch (role) {
+      case "admin":
+        return "/admin-dashboard";
+      case "restaurant":
+        return "/restaurant-dashboard";
+      case "rider":
+        return "/rider-dashboard";
+      default:
+        return "/user-dashboard";
+    }
+  };
   const displayName = user?.fullName || user?.name || "User";
   const initials = displayName.charAt(0).toUpperCase();
 

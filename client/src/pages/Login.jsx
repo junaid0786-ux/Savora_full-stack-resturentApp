@@ -56,7 +56,6 @@ const Login = () => {
         sessionStorage.setItem("user", JSON.stringify(userData));
         setUser(userData);
         setIsLogin(true);
-
         navigate("/user-dashboard");
       }
     } catch (error) {
@@ -64,6 +63,23 @@ const Login = () => {
       toast.error(error.response?.data?.message || "Invalid credentials");
     } finally {
       setIsLoading(false);
+    }
+
+    switch (res.data.data.role) {
+      case "admin":
+        navigate("/admin-dashboard");
+        break;
+      case "restaurant":
+        navigate("/restaurant-dashboard");
+        break;
+      case "rider":
+        navigate("/rider-dashboard");
+        break;
+      case "customer":
+        navigate("/user-dashboard");
+        break;
+      default:
+        break;
     }
   };
 
