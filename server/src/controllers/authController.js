@@ -83,13 +83,18 @@ export const UserLogout = async (req, res, next) => {
 export const UpdateUserProfile = async (req, res, next) => {
   try {
     const userId = req.user._id;
-    const { fullName, mobileNumber, address, email } = req.body;
+    const { fullName, mobileNumber, address, email, dob, gender, city, pin } =
+      req.body;
 
     const updateData = {};
     if (fullName) updateData.fullName = fullName;
     if (mobileNumber) updateData.mobileNumber = mobileNumber;
     if (address) updateData.address = address;
     if (email) updateData.email = email;
+    if (dob) updateData.dob = dob;
+    if (gender) updateData.gender = gender;
+    if (city) updateData.city = city;
+    if (pin) updateData.pin = pin;
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,

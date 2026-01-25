@@ -33,7 +33,10 @@ const UserProfile = () => {
     pin: "",
     wallet: 0,
     points: 0,
+    photo: "",
   });
+
+  const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -48,7 +51,9 @@ const UserProfile = () => {
         pin: user.pin === "N/A" ? "" : user.pin,
         wallet: user.wallet || 0,
         points: user.points || 0,
+        photo: user.photo?.url || "",
       });
+      setImagePreview(user.photo?.url || null);
     }
   }, [user]);
 
@@ -63,6 +68,22 @@ const UserProfile = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size is too large (max 5MB)");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+        setFormData((prev) => ({ ...prev, photo: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSave = async () => {
     setLoading(true);
 
@@ -70,7 +91,7 @@ const UserProfile = () => {
       const response = await api.put("/auth/update-profile", formData);
 
       if (response.data.success) {
-        const updatedUser = { ...user, ...formData };
+        const updatedUser = { ...user, ...response.data.data };
         setUser(updatedUser);
         sessionStorage.setItem("user", JSON.stringify(updatedUser));
         toast.success(response.data.message || "Profile updated successfully!");
@@ -91,8 +112,8 @@ const UserProfile = () => {
 
   const inputClasses = `w-full pl-12 pr-4 py-3 rounded-xl border outline-none transition-all text-sm font-medium font-poppins ${
     isEditing
-      ? "bg-white border-gray-200 focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10"
-      : "bg-(--bg-main) border-transparent text-gray-600 cursor-not-allowed"
+      ? "bg-white border-gray-300 focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10"
+      : "bg-gray-50 border-transparent text-gray-600 cursor-not-allowed"
   }`;
 
   const iconClasses = `absolute left-4 top-3.5 transition-colors ${
@@ -116,14 +137,35 @@ const UserProfile = () => {
             <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-white opacity-5 rotate-12 pointer-events-none"></div>
 
             <div className="relative mb-4 z-10 group cursor-pointer">
-              <div className="w-28 h-28 rounded-full border-[5px] border-white/20 shadow-inner bg-white/10 flex items-center justify-center overflow-hidden backdrop-blur-sm">
-                <span className="text-4xl font-bold text-white font-brand">
-                  {initials}
-                </span>
+              <div className="w-28 h-28 rounded-full border-[5px] border-white/20 shadow-inner bg-white/10 flex items-center justify-center overflow-hidden backdrop-blur-sm relative">
+                {imagePreview ? (
+                  <img
+                    src={imagePreview}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-4xl font-bold text-white font-brand">
+                    {initials}
+                  </span>
+                )}
               </div>
-              <div className="absolute inset-0 bg-black/20 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+
+              <label
+                htmlFor="image"
+                className={`absolute inset-0 bg-black/40 rounded-full flex items-center justify-center transition-opacity ${isEditing ? "opacity-0 group-hover:opacity-100 cursor-pointer" : "hidden"}`}
+              >
                 <Camera className="text-white" size={24} />
-              </div>
+                <input
+                  type="file"
+                  name="image"
+                  id="image"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  disabled={!isEditing}
+                />
+              </label>
             </div>
 
             <h2 className="text-2xl font-bold font-brand z-10">
@@ -173,6 +215,7 @@ const UserProfile = () => {
           </div>
         </div>
 
+        {/* Right Column: Edit Form */}
         <div className="lg:col-span-2 h-full flex flex-col">
           <div className="bg-(--bg-card) rounded-2xl border border-gray-100 shadow-sm overflow-hidden h-full flex flex-col">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-(--bg-main)/30 shrink-0">
@@ -200,7 +243,9 @@ const UserProfile = () => {
                       address: user.address === "N/A" ? "" : user.address,
                       city: user.city === "N/A" ? "" : user.city,
                       pin: user.pin === "N/A" ? "" : user.pin,
+                      photo: user.photo?.url || "",
                     });
+                    setImagePreview(user.photo?.url || null);
                   }
                   setIsEditing(!isEditing);
                 }}
@@ -377,7 +422,9 @@ const UserProfile = () => {
                       address: user.address === "N/A" ? "" : user.address,
                       city: user.city === "N/A" ? "" : user.city,
                       pin: user.pin === "N/A" ? "" : user.pin,
+                      photo: user.photo?.url || "",
                     });
+                    setImagePreview(user.photo?.url || null);
                     setIsEditing(false);
                   }}
                   disabled={loading}

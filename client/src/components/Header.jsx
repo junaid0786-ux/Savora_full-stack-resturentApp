@@ -57,10 +57,10 @@ const Header = () => {
               <input
                 type="text"
                 placeholder="Search for food, restaurants..."
-                className="w-full bg-gray-100 border-2 border-transparent text-gray-700 rounded-xl py-2.5 pl-12 pr-4 focus:outline-none focus:bg-white focus:border-rose-100 focus:ring-4 focus:ring-rose-500/10 transition-all duration-300 placeholder-gray-400 font-medium shadow-sm group-hover:shadow-md"
+                className="w-full bg-gray-100 border-2 border-transparent text-gray-700 rounded-xl py-2.5 pl-12 pr-4 focus:outline-none focus:bg-white focus:border-rose-100 focus:ring-4 focus:ring-rose-300 transition-all duration-300 placeholder-gray-400 font-medium shadow-sm group-hover:shadow-md"
               />
               <Search
-                className="absolute left-4 top-3 text-gray-400 group-focus-within:text-rose-500 transition-colors duration-300"
+                className="absolute left-4 top-3 text-gray-400 group-focus-within:text-rose-600 transition-colors duration-300"
                 size={20}
               />
             </div>
