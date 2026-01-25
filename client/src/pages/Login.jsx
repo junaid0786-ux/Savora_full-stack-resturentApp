@@ -52,34 +52,39 @@ const Login = () => {
 
       if (res.data) {
         toast.success(res.data.message || "Login Successful!");
+
         const userData = res.data.data || res.data.user;
+
         sessionStorage.setItem("user", JSON.stringify(userData));
         setUser(userData);
         setIsLogin(true);
-        navigate("/user-dashboard");
+
+        const userRole = userData.role;
+
+        switch (userRole) {
+          case "admin":
+            navigate("/admin-dashboard");
+            break;
+          case "manager":
+            navigate("/manager-dashboard");
+            break;
+          case "partner":
+            navigate("/partner-dashboard");
+            break;
+          case "customer":
+          case "user":
+            navigate("/user-dashboard");
+            break;
+          default:
+            navigate("/user-dashboard");
+            break;
+        }
       }
     } catch (error) {
       console.error(error);
       toast.error(error.response?.data?.message || "Invalid credentials");
     } finally {
       setIsLoading(false);
-    }
-
-    switch (res.data.data.role) {
-      case "admin":
-        navigate("/admin-dashboard");
-        break;
-      case "restaurant":
-        navigate("/restaurant-dashboard");
-        break;
-      case "rider":
-        navigate("/rider-dashboard");
-        break;
-      case "customer":
-        navigate("/user-dashboard");
-        break;
-      default:
-        break;
     }
   };
 
@@ -182,8 +187,7 @@ const Login = () => {
                 </Link>
               </span>
             </p>
-
-            <div className="text-gray-500 hover:text-rose-600 font-medium hover:underline transition-colors">
+            <div className="text-gray-500 hover:text-rose-600 font-medium hover:underline transition-colors cursor-pointer">
               Forgot Password?
             </div>
           </div>

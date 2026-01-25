@@ -2,7 +2,7 @@ import React from 'react'
 
 const ResturentDashboard = () => {
   return (
-    <div>ResturentDashboard</div>
+    <div className='w-full h-screen bg-rose-100'>ResturentDashboard</div>
   )
 }
 
