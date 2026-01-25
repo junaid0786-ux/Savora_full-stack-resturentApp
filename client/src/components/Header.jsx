@@ -12,10 +12,14 @@ const Header = () => {
 
   const getDashboardPath = () => {
     switch (role) {
-      case "admin": return "/admin-dashboard";
-      case "manager": return "/manager-dashboard";
-      case "partner": return "/partner-dashboard";
-      default: return "/user-dashboard";
+      case "admin":
+        return "/admin-dashboard";
+      case "manager":
+        return "/manager-dashboard";
+      case "partner":
+        return "/partner-dashboard";
+      default:
+        return "/user-dashboard";
     }
   };
 
@@ -26,7 +30,6 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100 font-sans transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 gap-4">
-          
           <Link to="/" className="group shrink-0">
             {isLogin && !isCustomer ? (
               <span
@@ -42,7 +45,9 @@ const Header = () => {
                 className="text-4xl font-extrabold text-rose-600 tracking-tight italic group-hover:text-rose-700 transition-colors duration-300"
               >
                 Savora
-                <span className="text-rose-400 group-hover:animate-bounce inline-block">.</span>
+                <span className="text-rose-400 animate-pulse inline-block">
+                  .
+                </span>
               </span>
             )}
           </Link>
@@ -83,7 +88,9 @@ const Header = () => {
                     {({ isActive }) => (
                       <>
                         {item}
-                        <span className={`absolute -bottom-1 left-0 h-0.5 bg-rose-600 rounded-full transition-all duration-300 ease-out ${isActive ? "w-full" : "w-0 group-hover:w-full"}`}></span>
+                        <span
+                          className={`absolute -bottom-1 left-0 h-0.5 bg-rose-600 rounded-full transition-all duration-300 ease-out ${isActive ? "w-full" : "w-0 group-hover:w-full"}`}
+                        ></span>
                       </>
                     )}
                   </NavLink>
@@ -98,16 +105,21 @@ const Header = () => {
           >
             {isLogin ? (
               <div className="flex items-center gap-4 animate-fade-in">
-                
                 <div className="flex items-center gap-3">
                   <button className="relative p-2.5 bg-gray-50 text-gray-600 hover:bg-rose-50 hover:text-rose-600 rounded-full transition-all duration-300 hover:scale-110 active:scale-95 group">
-                    <Bell size={20} className="group-hover:rotate-12 transition-transform duration-300" />
+                    <Bell
+                      size={20}
+                      className="group-hover:rotate-12 transition-transform duration-300"
+                    />
                     <span className="absolute top-2 right-2.5 w-2 h-2 bg-rose-600 rounded-full border border-white animate-pulse"></span>
                   </button>
 
                   {isCustomer && (
                     <button className="relative p-2.5 bg-gray-50 text-gray-600 hover:bg-rose-50 hover:text-rose-600 rounded-full transition-all duration-300 hover:scale-110 active:scale-95 group">
-                      <ShoppingCart size={20} className="group-hover:-rotate-12 transition-transform duration-300" />
+                      <ShoppingCart
+                        size={20}
+                        className="group-hover:-rotate-12 transition-transform duration-300"
+                      />
                       <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-600 text-white text-[10px] flex items-center justify-center rounded-full font-bold border-2 border-white shadow-sm">
                         3
                       </span>
@@ -117,7 +129,7 @@ const Header = () => {
 
                 <div className="h-8 w-px bg-gray-200 hidden sm:block"></div>
 
-                <div 
+                <div
                   onClick={() => navigate(getDashboardPath())}
                   className="group flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-1.5 pr-3 rounded-xl transition-all duration-300 select-none border border-transparent hover:border-gray-100 hover:shadow-sm active:scale-95"
                 >
@@ -136,7 +148,7 @@ const Header = () => {
                 </div>
 
                 {!isCustomer && (
-                  <button 
+                  <button
                     onClick={() => {
                       logout();
                       navigate("/");

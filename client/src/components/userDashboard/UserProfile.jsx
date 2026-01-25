@@ -12,6 +12,8 @@ import {
   X,
   Wallet,
   Star,
+  Calendar,
+  Map,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
@@ -21,21 +23,29 @@ const UserProfile = () => {
   const { user, setUser } = useAuth();
 
   const [formData, setFormData] = useState({
-    fullName: user?.fullName || user?.name || "User",
-    email: user?.email || "",
-    mobileNumber: user?.mobileNumber || user?.phone || "",
-    address: user?.address || "",
-    wallet: user?.wallet || 0,
-    points: user?.points || 0,
+    fullName: "",
+    email: "",
+    mobileNumber: "",
+    dob: "",
+    gender: "",
+    address: "",
+    city: "",
+    pin: "",
+    wallet: 0,
+    points: 0,
   });
 
   useEffect(() => {
     if (user) {
       setFormData({
-        fullName: user.fullName || user.name || "",
+        fullName: user.fullName || "",
         email: user.email || "",
-        mobileNumber: user.mobileNumber || user.phone || "",
-        address: user.address || "",
+        mobileNumber: user.mobileNumber || "",
+        dob: user.dob === "N/A" ? "" : user.dob,
+        gender: user.gender === "N/A" ? "" : user.gender,
+        address: user.address === "N/A" ? "" : user.address,
+        city: user.city === "N/A" ? "" : user.city,
+        pin: user.pin === "N/A" ? "" : user.pin,
         wallet: user.wallet || 0,
         points: user.points || 0,
       });
@@ -50,11 +60,7 @@ const UserProfile = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    let key = name;
-    if (name === "name") key = "fullName";
-    if (name === "phone") key = "mobileNumber";
-
-    setFormData((prev) => ({ ...prev, [key]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = async () => {
@@ -83,9 +89,19 @@ const UserProfile = () => {
     }
   };
 
+  const inputClasses = `w-full pl-12 pr-4 py-3 rounded-xl border outline-none transition-all text-sm font-medium font-poppins ${
+    isEditing
+      ? "bg-white border-gray-200 focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10"
+      : "bg-(--bg-main) border-transparent text-gray-600 cursor-not-allowed"
+  }`;
+
+  const iconClasses = `absolute left-4 top-3.5 transition-colors ${
+    isEditing ? "text-(--color-primary)" : "text-gray-400"
+  }`;
+
   return (
     <div className="flex flex-col gap-6 w-full max-w-7xl h-full animate-fade-in text-(--text-main) overflow-hidden">
-      <div className="border-b border-gray-100 pb-4 flex items-center w-full justify-between ">
+      <div className="border-b border-gray-100 pb-4 flex items-center w-full justify-between">
         <p className="text-xl font-bold text-(--color-primary) tracking-widest uppercase mb-1 font-brand">
           Account
         </p>
@@ -176,11 +192,16 @@ const UserProfile = () => {
 
               <button
                 onClick={() => {
-                  if (isEditing)
+                  if (isEditing) {
                     setFormData({
                       ...user,
-                      fullName: user.fullName || user.name,
+                      dob: user.dob === "N/A" ? "" : user.dob,
+                      gender: user.gender === "N/A" ? "" : user.gender,
+                      address: user.address === "N/A" ? "" : user.address,
+                      city: user.city === "N/A" ? "" : user.city,
+                      pin: user.pin === "N/A" ? "" : user.pin,
                     });
+                  }
                   setIsEditing(!isEditing);
                 }}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 font-brand uppercase tracking-wide cursor-pointer
@@ -209,47 +230,14 @@ const UserProfile = () => {
                     Full Name
                   </label>
                   <div className="relative group">
-                    <User
-                      className={`absolute left-4 top-3.5 transition-colors ${isEditing ? "text-(--color-primary)" : "text-gray-400"}`}
-                      size={18}
-                    />
+                    <User className={iconClasses} size={18} />
                     <input
                       type="text"
-                      name="name"
+                      name="fullName"
                       value={formData.fullName}
                       onChange={handleChange}
                       disabled={!isEditing}
-                      className={`w-full pl-12 pr-4 py-3 rounded-xl border outline-none transition-all text-sm font-medium font-poppins
-                          ${
-                            isEditing
-                              ? "bg-white border-gray-200 focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10 "
-                              : "bg-(--bg-main) border-transparent text-gray-600 cursor-not-allowed"
-                          }`}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-(--text-muted) uppercase tracking-wider mb-2">
-                    Phone
-                  </label>
-                  <div className="relative group">
-                    <Phone
-                      className={`absolute left-4 top-3.5 transition-colors ${isEditing ? "text-(--color-primary)" : "text-gray-400"}`}
-                      size={18}
-                    />
-                    <input
-                      type="text"
-                      name="phone"
-                      value={formData.mobileNumber}
-                      onChange={handleChange}
-                      disabled={!isEditing}
-                      className={`w-full pl-12 pr-4 py-3 rounded-xl border outline-none transition-all text-sm font-medium font-poppins
-                          ${
-                            isEditing
-                              ? "bg-white border-gray-200 focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10"
-                              : "bg-(--bg-main) border-transparent text-gray-600 cursor-not-allowed"
-                          }`}
+                      className={inputClasses}
                     />
                   </div>
                 </div>
@@ -259,23 +247,69 @@ const UserProfile = () => {
                     Email
                   </label>
                   <div className="relative group">
-                    <Mail
-                      className={`absolute left-4 top-3.5 transition-colors ${isEditing ? "text-(--color-primary)" : "text-gray-400"}`}
-                      size={18}
-                    />
+                    <Mail className={iconClasses} size={18} />
                     <input
                       type="email"
                       name="email"
                       value={formData.email}
-                      onChange={handleChange}
                       disabled
-                      className={`w-full pl-12 pr-4 py-3 rounded-xl border outline-none transition-all text-sm font-medium font-poppins 
-                          ${
-                            isEditing
-                              ? "bg-white border-gray-200 focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10 cursor-not-allowed "
-                              : "bg-(--bg-main) border-transparent text-gray-600 cursor-not-allowed"
-                          }`}
+                      className={`${inputClasses} cursor-not-allowed opacity-70`}
                     />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-(--text-muted) uppercase tracking-wider mb-2">
+                    Phone
+                  </label>
+                  <div className="relative group">
+                    <Phone className={iconClasses} size={18} />
+                    <input
+                      type="text"
+                      name="mobileNumber"
+                      value={formData.mobileNumber}
+                      onChange={handleChange}
+                      disabled={!isEditing}
+                      className={inputClasses}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-(--text-muted) uppercase tracking-wider mb-2">
+                    Date of Birth
+                  </label>
+                  <div className="relative group">
+                    <Calendar className={iconClasses} size={18} />
+                    <input
+                      type="date"
+                      name="dob"
+                      value={formData.dob}
+                      onChange={handleChange}
+                      disabled={!isEditing}
+                      className={inputClasses}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-(--text-muted) uppercase tracking-wider mb-2">
+                    Gender
+                  </label>
+                  <div className="relative group">
+                    <User className={iconClasses} size={18} />
+                    <select
+                      name="gender"
+                      value={formData.gender}
+                      onChange={handleChange}
+                      disabled={!isEditing}
+                      className={`${inputClasses} appearance-none`}
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="others">Others</option>
+                    </select>
                   </div>
                 </div>
 
@@ -284,22 +318,48 @@ const UserProfile = () => {
                     Address
                   </label>
                   <div className="relative group">
-                    <MapPin
-                      className={`absolute left-4 top-3.5 transition-colors ${isEditing ? "text-(--color-primary)" : "text-gray-400"}`}
-                      size={18}
-                    />
+                    <MapPin className={iconClasses} size={18} />
                     <input
                       type="text"
                       name="address"
                       value={formData.address}
                       onChange={handleChange}
                       disabled={!isEditing}
-                      className={`w-full pl-12 pr-4 py-3 rounded-xl border outline-none transition-all text-sm font-medium font-poppins text-ellipsis
-                          ${
-                            isEditing
-                              ? "bg-white border-gray-200 focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10"
-                              : "bg-(--bg-main) border-transparent text-gray-600 cursor-not-allowed"
-                          }`}
+                      className={inputClasses}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-(--text-muted) uppercase tracking-wider mb-2">
+                    City
+                  </label>
+                  <div className="relative group">
+                    <Map className={iconClasses} size={18} />
+                    <input
+                      type="text"
+                      name="city"
+                      value={formData.city}
+                      onChange={handleChange}
+                      disabled={!isEditing}
+                      className={inputClasses}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-(--text-muted) uppercase tracking-wider mb-2">
+                    Pin Code
+                  </label>
+                  <div className="relative group">
+                    <MapPin className={iconClasses} size={18} />
+                    <input
+                      type="text"
+                      name="pin"
+                      value={formData.pin}
+                      onChange={handleChange}
+                      disabled={!isEditing}
+                      className={inputClasses}
                     />
                   </div>
                 </div>
@@ -307,12 +367,16 @@ const UserProfile = () => {
             </div>
 
             {isEditing && (
-              <div className="p-6 border-t border-gray-100 bg-(--bg-main)/30 flex justify-end gap-3 shrink-0 animate-fade-in ">
+              <div className="p-6 border-t border-gray-100 bg-(--bg-main)/30 flex justify-end gap-3 shrink-0 animate-fade-in">
                 <button
                   onClick={() => {
                     setFormData({
                       ...user,
-                      fullName: user.fullName || user.name,
+                      dob: user.dob === "N/A" ? "" : user.dob,
+                      gender: user.gender === "N/A" ? "" : user.gender,
+                      address: user.address === "N/A" ? "" : user.address,
+                      city: user.city === "N/A" ? "" : user.city,
+                      pin: user.pin === "N/A" ? "" : user.pin,
                     });
                     setIsEditing(false);
                   }}

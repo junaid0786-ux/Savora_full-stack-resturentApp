@@ -46,11 +46,11 @@ const Register = () => {
     }
 
     if (!/^[\w\.]+@(gmail|outlook|ricr|yahoo)\.(com|in|co\.in)$/.test(formData.email)) {
-      newErrors.email = "Please use a valid email (Gmail, Outlook, Yahoo)";
+      newErrors.email = "Please use a valid email ";
     }
 
     if (!/^[6-9]\d{9}$/.test(formData.mobileNumber)) {
-      newErrors.mobileNumber = "Enter a valid 10-digit Indian mobile number";
+      newErrors.mobileNumber = "Enter a valid 10-digit mobile number";
     }
 
     if (formData.password.length < 6) {
@@ -109,7 +109,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-rose-50 flex justify-center items-center py-10 px-4 font-sans">
-      <div className="max-w-xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-rose-100/50">
+      <div className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-rose-100/50">
         <div className="bg-rose-600 p-8 text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
           <h2 className="text-3xl font-extrabold text-white mb-2 relative z-10 tracking-tight">
