@@ -6,12 +6,15 @@ import {
   UpdateUserProfile,
 } from "../controllers/authController.js";
 import { authUser } from "../middlewares/authMiddleware.js";
+import upload from "../middlewares/uploadMiddleware.js";
 
 const router = express.Router();
 
 router.post("/register", UserRegister);
 router.post("/login", UserLogin);
 router.get("/logout", UserLogout);
-router.put("/update-profile", authUser, UpdateUserProfile);
+
+router.put("/update-profile",authUser,upload.single("profilePic"), UpdateUserProfile
+);
 
 export default router;

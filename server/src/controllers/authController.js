@@ -1,6 +1,7 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import { genToken } from "../utils/authToken.js";
+import { uploadToCloudinary } from "../config/cloudinaryUpload.js";
 
 export const UserRegister = async (req, res, next) => {
   try {
@@ -19,8 +20,7 @@ export const UserRegister = async (req, res, next) => {
       return next(error);
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const hashPassword = await bcrypt.hash(password, salt);
+    const hashPassword = await bcrypt.hash(password, 10);
 
     await User.create({
       fullName,
@@ -62,7 +62,10 @@ export const UserLogin = async (req, res, next) => {
 
     genToken(existingUser, res);
 
-    res.status(200).json({ message: "Login Successful", data: existingUser });
+    res.status(200).json({
+      message: "Login Successful",
+      data: existingUser,
+    });
   } catch (error) {
     next(error);
   }
@@ -83,10 +86,12 @@ export const UserLogout = async (req, res, next) => {
 export const UpdateUserProfile = async (req, res, next) => {
   try {
     const userId = req.user._id;
-    const { fullName, mobileNumber, address, email, dob, gender, city, pin } =
-      req.body;
+    const file = req.file;
+
+    const { fullName, mobileNumber, address, email, dob, gender, city, pin } = req.body;
 
     const updateData = {};
+
     if (fullName) updateData.fullName = fullName;
     if (mobileNumber) updateData.mobileNumber = mobileNumber;
     if (address) updateData.address = address;
@@ -95,6 +100,15 @@ export const UpdateUserProfile = async (req, res, next) => {
     if (gender) updateData.gender = gender;
     if (city) updateData.city = city;
     if (pin) updateData.pin = pin;
+
+    if (file) {
+      const result = await uploadToCloudinary(file.buffer);
+
+      updateData.photo = {
+        url: result.secure_url,
+        publicID: result.public_id,
+      };
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,

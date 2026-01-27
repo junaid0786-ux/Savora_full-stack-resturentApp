@@ -13,8 +13,14 @@ import publicRouter from "./src/routers/publicRouter.js";
 const app = express();
 const PORT = process.env.PORT || 4500;
 
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
-app.use(express.json());
+app.use(cors({ 
+  origin: "http://localhost:5173", 
+  credentials: true 
+}));
+
+app.use(express.json({ limit: "10mb" })); 
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
 app.use(cookieParser());
 app.use(morgan("dev"));
 
@@ -34,5 +40,10 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, async () => {
   console.log(`Server Started at Port: ${PORT}`);
-  await connectDB();
+  try {
+    await connectDB();
+    console.log("Database Connected Successfully");
+  } catch (error) {
+    console.error("Database Connection Failed:", error);
+  }
 });

@@ -33,35 +33,43 @@ const UserProfile = () => {
     pin: "",
     wallet: 0,
     points: 0,
-    photo: "",
   });
 
-  const [imagePreview, setImagePreview] = useState(null);
-
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        fullName: user.fullName || "",
-        email: user.email || "",
-        mobileNumber: user.mobileNumber || "",
-        dob: user.dob === "N/A" ? "" : user.dob,
-        gender: user.gender === "N/A" ? "" : user.gender,
-        address: user.address === "N/A" ? "" : user.address,
-        city: user.city === "N/A" ? "" : user.city,
-        pin: user.pin === "N/A" ? "" : user.pin,
-        wallet: user.wallet || 0,
-        points: user.points || 0,
-        photo: user.photo?.url || "",
-      });
-      setImagePreview(user.photo?.url || null);
-    }
-  }, [user]);
-
-  const displayName = formData.fullName || "User";
-  const initials = displayName.charAt(0).toUpperCase();
+  const [selectedFile, setSelectedFile] = useState("");
+  const [imagePreview, setImagePreview] = useState("");
 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+
+    setFormData({
+      fullName: user.fullName || "",
+      email: user.email || "",
+      mobileNumber: user.mobileNumber || "",
+      dob: user.dob && user.dob !== "N/A" ? user.dob : "",
+      gender: user.gender && user.gender !== "N/A" ? user.gender : "",
+      address: user.address && user.address !== "N/A" ? user.address : "",
+      city: user.city && user.city !== "N/A" ? user.city : "",
+      pin: user.pin && user.pin !== "N/A" ? user.pin : "",
+      wallet: user.wallet || 0,
+      points: user.points || 0,
+    });
+
+    setImagePreview(user.photo?.url || "");
+  }, [user]);
+
+  useEffect(() => {
+    return () => {
+      if (imagePreview?.startsWith("blob:")) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
+
+  const displayName = formData.fullName || "User";
+  const initials = displayName.charAt(0).toUpperCase();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -70,53 +78,76 @@ const UserProfile = () => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("File size is too large (max 5MB)");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-        setFormData((prev) => ({ ...prev, photo: reader.result }));
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Image must be under 2MB");
+      return;
     }
+
+    setSelectedFile(file);
+    setImagePreview(URL.createObjectURL(file));
   };
 
   const handleSave = async () => {
     setLoading(true);
-
     try {
-      const response = await api.put("/auth/update-profile", formData);
+      const data = new FormData();
 
-      if (response.data.success) {
-        const updatedUser = { ...user, ...response.data.data };
-        setUser(updatedUser);
-        sessionStorage.setItem("user", JSON.stringify(updatedUser));
-        toast.success(response.data.message || "Profile updated successfully!");
-        setIsEditing(false);
-      } else {
-        toast.error(response.data.message || "Update failed");
+      Object.entries(formData).forEach(([key, value]) => {
+        if (!["wallet", "points", "email"].includes(key)) {
+          data.append(key, value || "");
+        }
+      });
+
+      if (selectedFile) {
+        data.append("profilePic", selectedFile);
       }
+
+      const res = await api.put("/auth/update-profile", data);
+
+      const updatedUser = res.data.data;
+
+      setUser(updatedUser);
+      sessionStorage.setItem("user", JSON.stringify(updatedUser));
+
+      toast.success(res.data.message || "Profile updated");
+      setIsEditing(false);
+      setSelectedFile("");
     } catch (error) {
-      console.error("Profile Update Error:", error);
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to update profile. Please try again.",
-      );
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to update profile");
     } finally {
       setLoading(false);
     }
   };
 
-  const inputClasses = `w-full pl-12 pr-4 py-3 rounded-xl border outline-none transition-all text-sm font-medium font-poppins ${
+  const handleCancel = () => {
+    setIsEditing(false);
+    setSelectedFile("");
+    setImagePreview(user?.photo?.url || "");
+
+    setFormData({
+      fullName: user.fullName || "",
+      email: user.email || "",
+      mobileNumber: user.mobileNumber || "",
+      dob: user.dob && user.dob !== "N/A" ? user.dob : "",
+      gender: user.gender && user.gender !== "N/A" ? user.gender : "",
+      address: user.address && user.address !== "N/A" ? user.address : "",
+      city: user.city && user.city !== "N/A" ? user.city : "",
+      pin: user.pin && user.pin !== "N/A" ? user.pin : "",
+      wallet: user.wallet || 0,
+      points: user.points || 0,
+    });
+  };
+
+  const inputClass = `w-full pl-12 pr-4 py-3 rounded-xl border outline-none transition-all text-sm font-medium font-poppins ${
     isEditing
       ? "bg-white border-gray-300 focus:border-(--color-primary) focus:ring-2 focus:ring-(--color-primary)/10"
       : "bg-gray-50 border-transparent text-gray-600 cursor-not-allowed"
   }`;
 
-  const iconClasses = `absolute left-4 top-3.5 transition-colors ${
+  const iconClass = `absolute left-4 top-3.5 transition-colors ${
     isEditing ? "text-(--color-primary)" : "text-gray-400"
   }`;
 
@@ -133,11 +164,11 @@ const UserProfile = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full pb-2 overflow-y-auto lg:overflow-visible">
         <div className="lg:col-span-1 flex flex-col gap-6">
-          <div className="bg-rose-600 rounded-2xl p-8 text-white shadow-lg shadow-(--color-primary)/30 flex flex-col items-center text-center relative overflow-hidden shrink-0">
+          <div className="bg-rose-600 rounded-2xl p-5 text-white shadow-lg shadow-(--color-primary)/30 flex flex-col items-center text-center relative overflow-hidden shrink-0">
             <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-white opacity-5 rotate-12 pointer-events-none"></div>
 
-            <div className="relative mb-4 z-10 group cursor-pointer">
-              <div className="w-28 h-28 rounded-full border-[5px] border-white/20 shadow-inner bg-white/10 flex items-center justify-center overflow-hidden backdrop-blur-sm relative">
+            <div className="relative mb-4 z-10 group">
+              <div className="w-48 h-48 rounded-full border-[5px] border-white/20 shadow-inner bg-white/10 flex items-center justify-center overflow-hidden backdrop-blur-sm relative">
                 {imagePreview ? (
                   <img
                     src={imagePreview}
@@ -150,16 +181,18 @@ const UserProfile = () => {
                   </span>
                 )}
               </div>
-
               <label
-                htmlFor="image"
-                className={`absolute inset-0 bg-black/40 rounded-full flex items-center justify-center transition-opacity ${isEditing ? "opacity-0 group-hover:opacity-100 cursor-pointer" : "hidden"}`}
+                htmlFor="imageUpload"
+                className={`absolute inset-0 bg-black/40 rounded-full flex items-center justify-center transition-opacity ${
+                  isEditing
+                    ? "opacity-0 group-hover:opacity-100 cursor-pointer"
+                    : "hidden"
+                }`}
               >
                 <Camera className="text-white" size={24} />
                 <input
                   type="file"
-                  name="image"
-                  id="image"
+                  id="imageUpload"
                   className="hidden"
                   accept="image/*"
                   onChange={handleImageChange}
@@ -215,7 +248,6 @@ const UserProfile = () => {
           </div>
         </div>
 
-        {/* Right Column: Edit Form */}
         <div className="lg:col-span-2 h-full flex flex-col">
           <div className="bg-(--bg-card) rounded-2xl border border-gray-100 shadow-sm overflow-hidden h-full flex flex-col">
             <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-(--bg-main)/30 shrink-0">
@@ -234,21 +266,9 @@ const UserProfile = () => {
               </div>
 
               <button
-                onClick={() => {
-                  if (isEditing) {
-                    setFormData({
-                      ...user,
-                      dob: user.dob === "N/A" ? "" : user.dob,
-                      gender: user.gender === "N/A" ? "" : user.gender,
-                      address: user.address === "N/A" ? "" : user.address,
-                      city: user.city === "N/A" ? "" : user.city,
-                      pin: user.pin === "N/A" ? "" : user.pin,
-                      photo: user.photo?.url || "",
-                    });
-                    setImagePreview(user.photo?.url || null);
-                  }
-                  setIsEditing(!isEditing);
-                }}
+                onClick={() =>
+                  isEditing ? handleCancel() : setIsEditing(true)
+                }
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 font-brand uppercase tracking-wide cursor-pointer
                   ${
                     isEditing
@@ -275,14 +295,14 @@ const UserProfile = () => {
                     Full Name
                   </label>
                   <div className="relative group">
-                    <User className={iconClasses} size={18} />
+                    <User className={iconClass} size={18} />
                     <input
                       type="text"
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleChange}
                       disabled={!isEditing}
-                      className={inputClasses}
+                      className={inputClass}
                     />
                   </div>
                 </div>
@@ -292,13 +312,13 @@ const UserProfile = () => {
                     Email
                   </label>
                   <div className="relative group">
-                    <Mail className={iconClasses} size={18} />
+                    <Mail className={iconClass} size={18} />
                     <input
                       type="email"
                       name="email"
                       value={formData.email}
                       disabled
-                      className={`${inputClasses} cursor-not-allowed opacity-70`}
+                      className={`${inputClass} cursor-not-allowed opacity-70`}
                     />
                   </div>
                 </div>
@@ -308,14 +328,14 @@ const UserProfile = () => {
                     Phone
                   </label>
                   <div className="relative group">
-                    <Phone className={iconClasses} size={18} />
+                    <Phone className={iconClass} size={18} />
                     <input
                       type="text"
                       name="mobileNumber"
                       value={formData.mobileNumber}
                       onChange={handleChange}
                       disabled={!isEditing}
-                      className={inputClasses}
+                      className={inputClass}
                     />
                   </div>
                 </div>
@@ -325,14 +345,14 @@ const UserProfile = () => {
                     Date of Birth
                   </label>
                   <div className="relative group">
-                    <Calendar className={iconClasses} size={18} />
+                    <Calendar className={iconClass} size={18} />
                     <input
                       type="date"
                       name="dob"
                       value={formData.dob}
                       onChange={handleChange}
                       disabled={!isEditing}
-                      className={inputClasses}
+                      className={inputClass}
                     />
                   </div>
                 </div>
@@ -342,13 +362,13 @@ const UserProfile = () => {
                     Gender
                   </label>
                   <div className="relative group">
-                    <User className={iconClasses} size={18} />
+                    <User className={iconClass} size={18} />
                     <select
                       name="gender"
                       value={formData.gender}
                       onChange={handleChange}
                       disabled={!isEditing}
-                      className={`${inputClasses} appearance-none`}
+                      className={`${inputClass} appearance-none`}
                     >
                       <option value="">Select Gender</option>
                       <option value="male">Male</option>
@@ -363,14 +383,14 @@ const UserProfile = () => {
                     Address
                   </label>
                   <div className="relative group">
-                    <MapPin className={iconClasses} size={18} />
+                    <MapPin className={iconClass} size={18} />
                     <input
                       type="text"
                       name="address"
                       value={formData.address}
                       onChange={handleChange}
                       disabled={!isEditing}
-                      className={inputClasses}
+                      className={inputClass}
                     />
                   </div>
                 </div>
@@ -380,14 +400,14 @@ const UserProfile = () => {
                     City
                   </label>
                   <div className="relative group">
-                    <Map className={iconClasses} size={18} />
+                    <Map className={iconClass} size={18} />
                     <input
                       type="text"
                       name="city"
                       value={formData.city}
                       onChange={handleChange}
                       disabled={!isEditing}
-                      className={inputClasses}
+                      className={inputClass}
                     />
                   </div>
                 </div>
@@ -397,14 +417,14 @@ const UserProfile = () => {
                     Pin Code
                   </label>
                   <div className="relative group">
-                    <MapPin className={iconClasses} size={18} />
+                    <MapPin className={iconClass} size={18} />
                     <input
                       type="text"
                       name="pin"
                       value={formData.pin}
                       onChange={handleChange}
                       disabled={!isEditing}
-                      className={inputClasses}
+                      className={inputClass}
                     />
                   </div>
                 </div>
@@ -414,19 +434,7 @@ const UserProfile = () => {
             {isEditing && (
               <div className="p-6 border-t border-gray-100 bg-(--bg-main)/30 flex justify-end gap-3 shrink-0 animate-fade-in">
                 <button
-                  onClick={() => {
-                    setFormData({
-                      ...user,
-                      dob: user.dob === "N/A" ? "" : user.dob,
-                      gender: user.gender === "N/A" ? "" : user.gender,
-                      address: user.address === "N/A" ? "" : user.address,
-                      city: user.city === "N/A" ? "" : user.city,
-                      pin: user.pin === "N/A" ? "" : user.pin,
-                      photo: user.photo?.url || "",
-                    });
-                    setImagePreview(user.photo?.url || null);
-                    setIsEditing(false);
-                  }}
+                  onClick={handleCancel}
                   disabled={loading}
                   className="px-6 py-2.5 rounded-xl text-sm font-bold text-(--text-muted) hover:bg-gray-100 transition-colors font-brand cursor-pointer"
                 >
