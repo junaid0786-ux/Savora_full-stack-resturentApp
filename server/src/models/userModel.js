@@ -132,6 +132,12 @@ const userSchema = mongoose.Schema(
         default: "N/A",
       },
     },
+    isActive: {
+      type: String,
+      required: true,
+      enum: ["active", "inactive", "blocked"],
+      default: "active",
+    },
   },
   { timestamps: true },
 );

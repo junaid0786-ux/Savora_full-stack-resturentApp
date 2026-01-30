@@ -233,7 +233,7 @@ const UserOverview = () => {
                   <p className="text-xs text-rose-100 font-medium">
                     Delivery Partner
                   </p>
-                  <p className="text-sm font-bold font-brand">Praveen</p>
+                  <p className="text-sm font-bold font-brand"></p>
                 </div>
               </div>
             </div>

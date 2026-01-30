@@ -14,7 +14,8 @@ import {
 
 const UserSidebar = ({ active, setActive, expanded, setExpanded }) => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const role = user?.role || "user";
 
   const handleLogout = () => {
     try {
@@ -54,7 +55,7 @@ const UserSidebar = ({ active, setActive, expanded, setExpanded }) => {
             ${expanded ? "w-40 ml-2 opacity-100" : "w-0 ml-0 opacity-0"}
           `}
         >
-          Dashboard
+          {role}
         </div>
       </div>
 

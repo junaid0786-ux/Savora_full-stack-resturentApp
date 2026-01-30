@@ -53,17 +53,38 @@ const Header = () => {
           </Link>
 
           {isLogin && isCustomer ? (
-            <div className="hidden md:flex flex-1 max-w-xl mx-auto relative group transition-all duration-300 focus-within:scale-[1.02]">
-              <input
-                type="text"
-                placeholder="Search for food, restaurants..."
-                className="w-full bg-gray-100 border-2 border-transparent text-gray-700 rounded-xl py-2.5 pl-12 pr-4 focus:outline-none focus:bg-white focus:border-rose-100 focus:ring-4 focus:ring-rose-300 transition-all duration-300 placeholder-gray-400 font-medium shadow-sm group-hover:shadow-md"
-              />
-              <Search
-                className="absolute left-4 top-3 text-gray-400 group-focus-within:text-rose-600 transition-colors duration-300"
-                size={20}
-              />
-            </div>
+              <nav
+              className="hidden md:flex gap-8 items-center justify-center flex-1"
+              style={{ fontFamily: "var(--font-poppins)" }}
+            >
+              {["Home", "About", "Contact"].map((item) => {
+                const path = item === "Home" ? "/" : `/${item.toLowerCase()}`;
+                return (
+                  <NavLink
+                    key={item}
+                    to={path}
+                    className={({ isActive }) =>
+                      `relative text-base tracking-wide transition-all duration-300 group ${
+                        isActive
+                          ? "text-rose-600 font-bold scale-105"
+                          : "text-gray-600 font-medium hover:text-rose-600 hover:scale-105"
+                      }`
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        {item}
+                        <span
+                          className={`absolute -bottom-1 left-0 h-0.5 bg-rose-600 rounded-full transition-all duration-300 ease-out ${
+                            isActive ? "w-full" : "w-0 group-hover:w-full"
+                          }`}
+                        ></span>
+                      </>
+                    )}
+                  </NavLink>
+                );
+              })}
+            </nav>
           ) : isLogin && !isCustomer ? (
             <div className="hidden md:block"></div>
           ) : (
@@ -89,7 +110,9 @@ const Header = () => {
                       <>
                         {item}
                         <span
-                          className={`absolute -bottom-1 left-0 h-0.5 bg-rose-600 rounded-full transition-all duration-300 ease-out ${isActive ? "w-full" : "w-0 group-hover:w-full"}`}
+                          className={`absolute -bottom-1 left-0 h-0.5 bg-rose-600 rounded-full transition-all duration-300 ease-out ${
+                            isActive ? "w-full" : "w-0 group-hover:w-full"
+                          }`}
                         ></span>
                       </>
                     )}
@@ -134,7 +157,15 @@ const Header = () => {
                   className="group flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-1.5 pr-3 rounded-xl transition-all duration-300 select-none border border-transparent hover:border-gray-100 hover:shadow-sm active:scale-95"
                 >
                   <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center border-2 border-rose-50 overflow-hidden text-rose-600 font-bold shadow-sm group-hover:scale-105 group-hover:border-rose-200 transition-all duration-300">
-                    {initials}
+                    {user?.photo ? (
+                      <img
+                        src={user.photo.url}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      { initials }
+                    )}
                   </div>
 
                   <div className="hidden sm:block text-left">
