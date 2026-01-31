@@ -88,7 +88,8 @@ export const UpdateUserProfile = async (req, res, next) => {
     const userId = req.user._id;
     const file = req.file;
 
-    const { fullName, mobileNumber, address, email, dob, gender, city, pin } = req.body;
+    const { fullName, mobileNumber, address, email, dob, gender, city, pin } =
+      req.body;
 
     const updateData = {};
 
@@ -126,6 +127,38 @@ export const UpdateUserProfile = async (req, res, next) => {
       success: true,
       message: "Profile updated successfully",
       data: updatedUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const GetUserProfile = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const existingUser = await User.findById(userId).select("-password");
+
+    if (!existingUser) {
+      const error = new Error("User not found");
+      error.statusCode = 404;
+      return next(error);
+    }
+
+    const otp = Math.floor(Math.random() * 100000).toString();
+    const hashedOTP = await bcrypt.hash(otp, salt);
+
+    await OTPModel.create({
+      email: existingUser.email,
+      otp: hashedOTP,
+    });
+
+    await sendOTPEmail(existingUser.email, otp);
+
+    res.status(200).json({
+      message: "User profile fetched successfully",
+      success: true,
+      data: existingUser,
+      otp: otp,
     });
   } catch (error) {
     next(error);

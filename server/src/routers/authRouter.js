@@ -13,6 +13,7 @@ const router = express.Router();
 router.post("/register", UserRegister);
 router.post("/login", UserLogin);
 router.get("/logout", UserLogout);
+router.post()
 
 router.put("/update-profile",authUser,upload.single("profilePic"), UpdateUserProfile
 );

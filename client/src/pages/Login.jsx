@@ -4,15 +4,14 @@ import toast from "react-hot-toast";
 import api from "../config/Api";
 import { Mail, Lock, LogIn, Loader2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import ForgetPasswordModel from "../components/publicModels/ForgetPasswordModel";
 
 const Login = () => {
   const { setUser, setIsLogin } = useAuth();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const [isForgetPasswordOpen, setIsForgetPasswordOpen] = useState(false);
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -28,15 +27,11 @@ const Login = () => {
     let newErrors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!formData.email) {
-      newErrors.email = "Email is required";
-    } else if (!emailRegex.test(formData.email)) {
+    if (!formData.email) newErrors.email = "Email is required";
+    else if (!emailRegex.test(formData.email))
       newErrors.email = "Please enter a valid email";
-    }
 
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    }
+    if (!formData.password) newErrors.password = "Password is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -52,16 +47,13 @@ const Login = () => {
 
       if (res.data) {
         toast.success(res.data.message || "Login Successful!");
-
         const userData = res.data.data || res.data.user;
 
         sessionStorage.setItem("user", JSON.stringify(userData));
         setUser(userData);
         setIsLogin(true);
 
-        const userRole = userData.role;
-
-        switch (userRole) {
+        switch (userData.role) {
           case "admin":
             navigate("/admin-dashboard");
             break;
@@ -71,30 +63,23 @@ const Login = () => {
           case "partner":
             navigate("/partner-dashboard");
             break;
-          case "customer":
-          case "user":
-            navigate("/user-dashboard");
-            break;
           default:
             navigate("/user-dashboard");
-            break;
         }
       }
     } catch (error) {
-      console.error(error);
       toast.error(error.response?.data?.message || "Invalid credentials");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const getInputClass = (errorField) => {
-    return `w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-      errorField
+  const getInputClass = (error) =>
+    `w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
+      error
         ? "border-red-500 ring-red-200"
         : "border-black focus:border-rose-500 focus:ring-rose-200"
     }`;
-  };
 
   return (
     <div className="h-[90vh] bg-rose-50 flex justify-center items-center p-4 font-sans select-none">
@@ -106,22 +91,15 @@ const Login = () => {
 
         <form className="p-8 flex flex-col gap-6" onSubmit={handleSubmit}>
           <div>
-            <label
-              className="block text-sm font-medium text-gray-700 mb-1"
-              htmlFor="email"
-            >
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Email Address
             </label>
             <div className="relative">
-              <Mail
-                className="absolute left-3 top-3.5 text-gray-400"
-                size={20}
-              />
+              <Mail className="absolute left-3 top-3.5 text-gray-400" size={20} />
               <input
                 className={getInputClass(errors.email)}
                 type="email"
                 name="email"
-                id="email"
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="you@example.com"
@@ -133,22 +111,15 @@ const Login = () => {
           </div>
 
           <div>
-            <label
-              className="block text-sm font-medium text-gray-700 mb-1"
-              htmlFor="password"
-            >
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Password
             </label>
             <div className="relative">
-              <Lock
-                className="absolute left-3 top-3.5 text-gray-400"
-                size={20}
-              />
+              <Lock className="absolute left-3 top-3.5 text-gray-400" size={20} />
               <input
                 className={getInputClass(errors.password)}
                 type="password"
                 name="password"
-                id="password"
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="••••••••"
@@ -162,7 +133,7 @@ const Login = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-lg transition-all transform active:scale-95 flex justify-center items-center gap-2 shadow-md shadow-rose-200 disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
+            className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-lg transition-all flex justify-center items-center gap-2 shadow-md shadow-rose-200 disabled:opacity-70"
           >
             {isLoading ? (
               <>
@@ -178,21 +149,31 @@ const Login = () => {
           <div className="flex justify-between items-center text-sm mt-2">
             <p className="text-gray-600">
               New here?
-              <span className="ml-1">
-                <Link
-                  to="/register"
-                  className="text-rose-600 font-bold hover:text-rose-800 hover:underline"
-                >
-                  Register
-                </Link>
-              </span>
+              <Link
+                to="/register"
+                className="ml-1 text-rose-600 font-bold hover:underline"
+              >
+                Register
+              </Link>
             </p>
-            <div className="text-gray-500 hover:text-rose-600 font-medium hover:underline transition-colors cursor-pointer">
+            <button
+              className="text-gray-500 hover:text-rose-600 font-medium hover:underline"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsForgetPasswordOpen(true);
+              }}
+            >
               Forgot Password?
-            </div>
+            </button>
           </div>
         </form>
       </div>
+
+      {isForgetPasswordOpen && (
+        <ForgetPasswordModel
+          onClose={() => setIsForgetPasswordOpen(false)}
+        />
+      )}
     </div>
   );
 };
