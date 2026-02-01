@@ -14,12 +14,16 @@ const sendEmail = async (to, subject, message) => {
       },
     });
 
+    console.log("3....2....1....");
+
     const mailOption = {
       from: process.env.GMAIL_USER,
       to,
       subject,
       html: message,
     };
+
+    console.log("Sending Email");
 
     const res = await transporter.sendMail(mailOption);
     console.log(res);
@@ -29,5 +33,3 @@ const sendEmail = async (to, subject, message) => {
 };
 
 export default sendEmail;
-
-// sendEmail("junaidkhan989793@gmail.com", "test Email", "<p> Text Message </p>");

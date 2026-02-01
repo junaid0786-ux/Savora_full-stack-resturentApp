@@ -24,7 +24,7 @@ const Login = () => {
   };
 
   const validate = () => {
-    let newErrors = {};
+    const newErrors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!formData.email) newErrors.email = "Email is required";
@@ -37,36 +37,37 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const redirectByRole = (role) => {
+    const routes = {
+      admin: "/admin-dashboard",
+      manager: "/manager-dashboard",
+      partner: "/partner-dashboard",
+      user: "/user-dashboard",
+      customer: "/user-dashboard",
+    };
+    navigate(routes[role] || "/user-dashboard");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (isLoading || !validate()) return;
 
     setIsLoading(true);
     try {
-      const res = await api.post("/auth/login", formData);
+      const { data } = await api.post("/auth/login", formData);
 
-      if (res.data) {
-        toast.success(res.data.message || "Login Successful!");
-        const userData = res.data.data || res.data.user;
-
-        sessionStorage.setItem("user", JSON.stringify(userData));
-        setUser(userData);
-        setIsLogin(true);
-
-        switch (userData.role) {
-          case "admin":
-            navigate("/admin-dashboard");
-            break;
-          case "manager":
-            navigate("/manager-dashboard");
-            break;
-          case "partner":
-            navigate("/partner-dashboard");
-            break;
-          default:
-            navigate("/user-dashboard");
-        }
+      const userData = data?.data || data?.user;
+      if (!userData) {
+        toast.error("Login failed");
+        return;
       }
+
+      sessionStorage.setItem("user", JSON.stringify(userData));
+      setUser(userData);
+      setIsLogin(true);
+
+      toast.success(data?.message || "Login Successful!");
+      redirectByRole(userData.role);
     } catch (error) {
       toast.error(error.response?.data?.message || "Invalid credentials");
     } finally {
@@ -133,7 +134,7 @@ const Login = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-lg transition-all flex justify-center items-center gap-2 shadow-md shadow-rose-200 disabled:opacity-70"
+            className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-lg transition-all flex justify-center items-center gap-2 shadow-md shadow-rose-200 disabled:opacity-70 cursor-pointer"
           >
             {isLoading ? (
               <>
@@ -157,7 +158,7 @@ const Login = () => {
               </Link>
             </p>
             <button
-              className="text-gray-500 hover:text-rose-600 font-medium hover:underline"
+              className="text-gray-500 hover:text-rose-600 font-medium hover:underline cursor-pointer"
               onClick={(e) => {
                 e.preventDefault();
                 setIsForgetPasswordOpen(true);
@@ -170,9 +171,7 @@ const Login = () => {
       </div>
 
       {isForgetPasswordOpen && (
-        <ForgetPasswordModel
-          onClose={() => setIsForgetPasswordOpen(false)}
-        />
+        <ForgetPasswordModel onClose={() => setIsForgetPasswordOpen(false)} />
       )}
     </div>
   );

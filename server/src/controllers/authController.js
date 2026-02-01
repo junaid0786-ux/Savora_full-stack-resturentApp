@@ -1,7 +1,9 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
-import { genToken } from "../utils/authToken.js";
+import { genToken, genOtpToken } from "../utils/authToken.js";
 import { uploadToCloudinary } from "../config/cloudinaryUpload.js";
+import OTP from "../models/otpModel.js";
+import { sendOTPEmail } from "../utils/emailService.js";
 
 export const UserRegister = async (req, res, next) => {
   try {
@@ -133,33 +135,112 @@ export const UpdateUserProfile = async (req, res, next) => {
   }
 };
 
-export const GetUserProfile = async (req, res, next) => {
+export const UserGenOTP = async (req, res, next) => {
   try {
-    const userId = req.user._id;
-    const existingUser = await User.findById(userId).select("-password");
+    const { email } = req.body;
 
-    if (!existingUser) {
-      const error = new Error("User not found");
-      error.statusCode = 404;
+    if (!email) {
+      const error = new Error("All feilds required");
+      error.statusCode = 400;
       return next(error);
     }
 
-    const otp = Math.floor(Math.random() * 100000).toString();
-    const hashedOTP = await bcrypt.hash(otp, salt);
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      const error = new Error("Email not registered");
+      error.statusCode = 401;
+      return next(error);
+    }
 
-    await OTPModel.create({
-      email: existingUser.email,
-      otp: hashedOTP,
+    const existingUserOTP = await OTP.findOne({ email });
+    if (existingUserOTP) {
+      await existingUserOTP.deleteOne();
+    }
+
+    const otp = Math.floor(Math.random() * 1000000).toString();
+    console.log(typeof otp);
+
+    const salt = await bcrypt.genSalt(10);
+    const hashOTP = await bcrypt.hash(otp, salt);
+
+    console.log(hashOTP);
+
+    await OTP.create({
+      email,
+      otp: hashOTP,
     });
 
-    await sendOTPEmail(existingUser.email, otp);
+    await sendOTPEmail(email, otp);
 
-    res.status(200).json({
-      message: "User profile fetched successfully",
-      success: true,
-      data: existingUser,
-      otp: otp,
-    });
+    res.status(200).json({ message: "OTP send on registered email" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const UserVerifyOtp = async (req, res, next) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      const error = new Error("All feilds required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const existingUserOTP = await OTP.findOne({ email });
+    if (!existingUserOTP) {
+      const error = new Error("OTP Match Error, Please Retry");
+      error.statusCode = 401;
+      return next(error);
+    }
+
+    const isVerified = await bcrypt.compare(otp, existingUserOTP.otp);
+    if (!isVerified) {
+      const error = new Error("OTP Match Error, Please Retry");
+      error.statusCode = 401;
+      return next(error);
+    }
+
+    await existingUserOTP.deleteOne();
+
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      const error = new Error("Email not registered");
+      error.statusCode = 401;
+      return next(error);
+    }
+
+    genOtpToken(existingUser, res);
+
+    res.status(200).json({ message: "OTP Verified. Create New Password Now" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const UserForgetPassword = async (req, res, next) => {
+  try {
+    const { newPassword } = req.body;
+    const currentUser = req.user;
+
+    if (!newPassword) {
+      const error = new Error("All feilds required");
+      error.statusCode = 400;
+      return next(error);
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(newPassword, salt);
+
+    currentUser.password = hashPassword;
+
+    await currentUser.save();
+
+    res
+      .status(200)
+      .clearCookie("otpToken")
+      .json({ message: "Password Changed. Please login again" });
   } catch (error) {
     next(error);
   }
