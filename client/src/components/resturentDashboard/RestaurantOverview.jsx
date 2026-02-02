@@ -98,25 +98,25 @@ const RestaurantOverview = () => {
   const recentOrders = [
     {
       id: "#ORD-9921",
-      customer: "Alex Johnson",
+      customer: "Junaid",
       items: "2 items",
-      total: "₹540",
+      total: "₹400",
       status: "Cooking",
       time: "2 min ago",
     },
     {
       id: "#ORD-9920",
-      customer: "Maria Garcia",
+      customer: "User",
       items: "1 item",
-      total: "₹250",
+      total: "₹500",
       status: "Pending",
       time: "5 min ago",
     },
     {
       id: "#ORD-9919",
-      customer: "James Smith",
+      customer: "User",
       items: "3 items",
-      total: "₹1,200",
+      total: "₹1,000",
       status: "Delivered",
       time: "15 min ago",
     },
@@ -127,7 +127,7 @@ const RestaurantOverview = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-800 font-outfit">
-            Welcome Back, Partner!
+            Welcome Back !
           </h1>
           <p className="text-gray-500 text-sm mt-1">
             Here's what's happening in your restaurant today.

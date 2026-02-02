@@ -9,12 +9,13 @@ import {
   Store,
   Menu,
   LogOut,
+  ArrowLeftRight,
 } from "lucide-react";
 
 const RestaurantSidebar = ({ active, setActive, expanded, setExpanded }) => {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
-  
+
   const roleLabel = user?.role === "partner" ? "Partner" : "Restaurant";
 
   const handleLogout = () => {
@@ -33,7 +34,7 @@ const RestaurantSidebar = ({ active, setActive, expanded, setExpanded }) => {
     { id: "profile", label: "Store Profile", icon: Store },
     { id: "orders", label: "Live Orders", icon: ShoppingBag },
     { id: "menu", label: "Menu Items", icon: UtensilsCrossed },
-   
+    { id: "transactions", label: "Transactions", icon: ArrowLeftRight },
   ];
 
   return (

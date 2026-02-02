@@ -23,6 +23,12 @@ const ForgetPasswordModel = ({ onClose }) => {
     e.preventDefault();
     setLoading(true);
 
+    if (formData.newPassword !== formData.confirmNewPassword && step === 3) {
+      toast.error("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+
     try {
       if (step === 1) {
         await api.post("/auth/genOtp", { email: formData.email });
@@ -63,15 +69,13 @@ const ForgetPasswordModel = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 backdrop-blur-sm">
       <div className="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden">
         <div className="bg-rose-600 p-6 text-center relative">
-          <h2 className="text-2xl font-bold text-white">
-            Reset Your Password
-          </h2>
+          <h2 className="text-2xl font-bold text-white">Reset Your Password</h2>
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-white hover:opacity-80"
+            className="absolute top-4 right-4 text-white hover:opacity-80 cursor-pointer"
           >
             <X />
           </button>
@@ -80,7 +84,10 @@ const ForgetPasswordModel = ({ onClose }) => {
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {step === 1 && (
             <div className="relative">
-              <Mail className="absolute left-3 top-3.5 text-gray-400" size={20} />
+              <Mail
+                className="absolute left-3 top-3.5 text-gray-400"
+                size={20}
+              />
               <input
                 type="email"
                 name="email"
@@ -145,15 +152,15 @@ const ForgetPasswordModel = ({ onClose }) => {
 
           <button
             disabled={loading}
-            className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-lg transition disabled:opacity-70"
+            className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-lg transition disabled:opacity-70 cursor-pointer"
           >
             {loading
               ? "Please wait..."
               : step === 1
-              ? "Send OTP"
-              : step === 2
-              ? "Verify OTP"
-              : "Reset Password"}
+                ? "Send OTP"
+                : step === 2
+                  ? "Verify OTP"
+                  : "Reset Password"}
           </button>
         </form>
       </div>

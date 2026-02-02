@@ -4,6 +4,7 @@ import RestaurantOverview from "../../components/resturentDashboard/RestaurantOv
 import RestaurantOrders from "../../components/resturentDashboard/RestaurantOrders";
 import RestaurantMenu from "../../components/resturentDashboard/RestaurantMenu";
 import RestaurantProfile from "../../components/resturentDashboard/RestaurantProfile";
+import ResturentTransactions from "../../components/resturentDashboard/ResturentTransactions";
 
 const ResturentDashboard = () => {
   const [active, setActive] = useState("overview");
@@ -19,6 +20,9 @@ const ResturentDashboard = () => {
         return <RestaurantMenu />;
       case "profile":
         return <RestaurantProfile />;
+      case "transactions":
+        return <ResturentTransactions />;
+
       default:
         return <RestaurantOverview />;
     }
