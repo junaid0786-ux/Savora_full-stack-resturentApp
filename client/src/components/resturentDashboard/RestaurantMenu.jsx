@@ -86,7 +86,6 @@ const RestaurantMenu = () => {
     },
   ]);
 
-  // Derived Lists
   const categories = [
     "All",
     ...new Set(menuItems.map((item) => item.category)),
@@ -101,7 +100,6 @@ const RestaurantMenu = () => {
     "beverage",
   ];
 
-  // Handlers
   const toggleAvailability = (id) => {
     setMenuItems((prev) =>
       prev.map((item) =>
@@ -151,7 +149,6 @@ const RestaurantMenu = () => {
 
   return (
     <div className="space-y-6 animate-fade-in font-sans pb-20">
-      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-800 font-outfit">
@@ -169,7 +166,6 @@ const RestaurantMenu = () => {
         </button>
       </div>
 
-      {/* Toolbar */}
       <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col lg:flex-row gap-4 items-center justify-between">
         <div className="relative w-full lg:w-96 group">
           <input
@@ -226,7 +222,6 @@ const RestaurantMenu = () => {
         </div>
       </div>
 
-      {/* Menu Grid - Compact Cards */}
       {filteredItems.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-dashed border-gray-200">
           <Search size={32} className="text-gray-300 mb-3" />
@@ -239,7 +234,6 @@ const RestaurantMenu = () => {
               key={item._id}
               className="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col overflow-hidden"
             >
-              {/* Image Section - Reduced Height (h-40) */}
               <div className="h-40 w-full relative overflow-hidden bg-gray-100">
                 {item.image && item.image.length > 0 ? (
                   <img
@@ -263,7 +257,6 @@ const RestaurantMenu = () => {
                 </div>
               </div>
 
-              {/* Content Section - Reduced Padding (p-4) */}
               <div className="p-4 flex-1 flex flex-col">
                 <div className="flex justify-between items-start mb-1">
                   <div>

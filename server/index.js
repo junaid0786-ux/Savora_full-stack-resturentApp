@@ -9,6 +9,8 @@ import connectDB from "./src/config/db.js";
 
 import AuthRouter from "./src/routers/authRouter.js";
 import publicRouter from "./src/routers/publicRouter.js";
+import restaurantRouter from "./src/routers/restaurantRouter.js";
+
 
 const app = express();
 const PORT = process.env.PORT || 4500;
@@ -26,7 +28,7 @@ app.use(morgan("dev"));
 
 app.use("/auth", AuthRouter);
 app.use("/public", publicRouter);
-
+app.use("/restaurant", restaurantRouter);
 app.get("/", (req, res) => {
   res.send("Server is Working Properly");
 });

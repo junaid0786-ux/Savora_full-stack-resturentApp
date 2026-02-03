@@ -19,6 +19,58 @@ export const authUser = async (req, res, next) => {
   }
 };
 
+export const adminProtect = async (req, res, next) => {
+  try {
+    if (req.user.role !== "admin") {
+      const error = new Error("Admin access required");
+      error.statusCode = 403;
+      return next(error);
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const restaurantProtect = async (req, res, next) => {
+  try {
+    if (req.user.role !== "restaurant") {
+      const error = new Error("Restaurant access required");
+      error.statusCode = 403;
+      return next(error);
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const customerProtect = async (req, res, next) => {
+  try {
+    if (req.user.role !== "customer") {
+      const error = new Error("Customer access required");
+      error.statusCode = 403;
+      return next(error);
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deliveryProtect = async (req, res, next) => {
+  try {
+    if (req.user.role !== "delivery") {
+      const error = new Error("Delivery access required");
+      error.statusCode = 403;
+      return next(error);
+    }
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const OtpProtect = async (req, res, next) => {
   try {
     const token = req.cookies.otpToken;
