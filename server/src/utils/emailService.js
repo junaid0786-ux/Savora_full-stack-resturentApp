@@ -31,7 +31,7 @@ export const sendOTPEmail = async (to, otp) => {
             <td style="
               padding:28px;
               text-align:center;
-              background:linear-gradient(135deg, #0d6efd, #4f9cff);
+              background:linear-linear(135deg, #0d6efd, #4f9cff);
             ">
               <h1 style="
                 margin:0;

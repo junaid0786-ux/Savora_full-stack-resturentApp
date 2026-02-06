@@ -90,11 +90,25 @@ export const UpdateUserProfile = async (req, res, next) => {
     const userId = req.user._id;
     const file = req.file;
 
-    const { fullName, mobileNumber, address, email, dob, gender, city, pin } =
-      req.body;
+    const {
+      fullName,
+      mobileNumber,
+      address,
+      email,
+      dob,
+      gender,
+      city,
+      pin,
+      restaurantName,
+      cuisine,
+      geoLocation,
+      paymentDetails,
+      documents,
+    } = req.body;
 
     const updateData = {};
 
+    // Basic fields
     if (fullName) updateData.fullName = fullName;
     if (mobileNumber) updateData.mobileNumber = mobileNumber;
     if (address) updateData.address = address;
@@ -104,6 +118,27 @@ export const UpdateUserProfile = async (req, res, next) => {
     if (city) updateData.city = city;
     if (pin) updateData.pin = pin;
 
+    // Restaurant-specific fields
+    if (restaurantName) updateData.restaurantName = restaurantName;
+    if (cuisine) updateData.cuisine = cuisine;
+
+    // Handle nested objects - parse if they come as JSON strings
+    if (geoLocation) {
+      updateData.geoLocation =
+        typeof geoLocation === "string" ? JSON.parse(geoLocation) : geoLocation;
+    }
+    if (paymentDetails) {
+      updateData.paymentDetails =
+        typeof paymentDetails === "string"
+          ? JSON.parse(paymentDetails)
+          : paymentDetails;
+    }
+    if (documents) {
+      updateData.documents =
+        typeof documents === "string" ? JSON.parse(documents) : documents;
+    }
+
+    // Handle photo upload
     if (file) {
       const result = await uploadToCloudinary(file.buffer);
 
