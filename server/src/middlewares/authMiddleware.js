@@ -10,7 +10,21 @@ export const authUser = async (req, res, next) => {
       return next(error);
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
+
+    const user = await User.findById(decoded._id);
+    if (!user) {
+      const error = new Error("User not found");
+      error.statusCode = 401;
+      return next(error);
+    }
+
+    req.user = {
+      _id: user._id,
+      id: user._id,
+      email: user.email,
+      role: user.role,
+      name: user.fullName,
+    };
     next();
   } catch (error) {
     const err = new Error("Not authorized, token failed");
@@ -34,8 +48,8 @@ export const adminProtect = async (req, res, next) => {
 
 export const restaurantProtect = async (req, res, next) => {
   try {
-    if (req.user.role !== "restaurant") {
-      const error = new Error("Restaurant access required");
+    if (req.user.role !== "manager" && req.user.role !== "partner") {
+      const error = new Error("Restaurant owner access required");
       error.statusCode = 403;
       return next(error);
     }
