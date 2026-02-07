@@ -30,7 +30,8 @@ const Home = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <div
+              <Link
+              to="/order"
                 className="bg-rose-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-rose-700 transition-all shadow-lg shadow-rose-200 flex items-center justify-center gap-2 group cursor-pointer"
               >
                 Order Now
@@ -38,7 +39,7 @@ const Home = () => {
                   className="group-hover:translate-x-1 transition-transform"
                   size={20}
                 />
-              </div>
+              </Link>
               <Link
                 to="/about"
                 className="bg-white text-gray-800 border border-gray-200 px-8 py-4 rounded-full font-bold text-lg hover:border-rose-600 hover:text-rose-600 transition-all"

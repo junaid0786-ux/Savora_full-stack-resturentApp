@@ -201,9 +201,7 @@ const RestaurantProfile = () => {
         dataToSend.append("profilePic", selectedFile);
       }
 
-      const response = await api.put("/auth/update-profile", dataToSend, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await api.put("/auth/update-profile", dataToSend);
 
       toast.success("Profile updated successfully");
       setIsEditing(false);

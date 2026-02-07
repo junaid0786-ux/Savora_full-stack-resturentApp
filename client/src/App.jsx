@@ -11,6 +11,7 @@ import UserDashboard from "./pages/dashboards/UserDashboard";
 import AdminDashboard from "./pages/dashboards/AdminDashboard";
 import ResturentDashboard from "./pages/dashboards/ResturentDashboard";
 import RiderDashboard from "./pages/dashboards/RiderDashboard";
+import Order from "./pages/Order";
 
 const App = () => {
   return (
@@ -24,6 +25,7 @@ const App = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/order" element={<Order />} />
 
           <Route path="/user-dashboard" element={<UserDashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
