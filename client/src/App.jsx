@@ -12,6 +12,7 @@ import AdminDashboard from "./pages/dashboards/AdminDashboard";
 import ResturentDashboard from "./pages/dashboards/ResturentDashboard";
 import RiderDashboard from "./pages/dashboards/RiderDashboard";
 import Order from "./pages/Order";
+import RestaurantDetails from "./pages/RestaurantDetails";
 
 const App = () => {
   return (
@@ -26,6 +27,7 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/order" element={<Order />} />
+          <Route path="/restaurant/:id" element={<RestaurantDetails/>}/>
 
           <Route path="/user-dashboard" element={<UserDashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />

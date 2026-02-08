@@ -6,10 +6,8 @@ import {
   Star,
   Clock,
   Filter,
-  ArrowRight,
   UtensilsCrossed,
   ChevronDown,
-  Wallet,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -231,10 +229,7 @@ const RestaurantCard = ({ data, navigate }) => {
     >
       <div className="relative aspect-4/3 rounded-2xl overflow-hidden mb-4 shadow-sm group-hover:shadow-xl group-hover:shadow-gray-200/50 transition-all duration-300">
         <img
-          src={
-            data.photo?.url ||
-            "https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=800"
-          }
+          src={data.photo?.url || data.restaurantName}
           alt={data.restaurantName}
           className={`w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 ${!isOpen && "grayscale"}`}
         />
