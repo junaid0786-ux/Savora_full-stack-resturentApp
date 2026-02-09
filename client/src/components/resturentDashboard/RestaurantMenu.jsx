@@ -65,8 +65,7 @@ const RestaurantMenu = () => {
   };
 
   const handleToggleAvailability = async (item) => {
-    const newStatus =
-      item.availability === "available" ? "unavailable" : "available";
+    const newStatus =item.availability === "available" ? "unavailable" : "available";
     setMenuItems((prev) =>
       prev.map((i) =>
         i._id === item._id ? { ...i, availability: newStatus } : i,

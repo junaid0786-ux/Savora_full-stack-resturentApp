@@ -66,8 +66,8 @@ const Header = () => {
                   className={({ isActive }) =>
                     `relative text-base tracking-wide transition-all duration-300 ease-out group transform-gpu ${
                       isActive
-                        ? "text-rose-600 font-bold scale-105"
-                        : "text-gray-600 font-medium hover:text-rose-600 hover:scale-105"
+                        ? "text-rose-600 font-medium "
+                        : "text-gray-600 font-medium hover:text-rose-600 "
                     }`
                   }
                 >
