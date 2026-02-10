@@ -154,12 +154,9 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-(--bg-main) font-(family-name:--font-poppins) flex flex-col">
-      <section className="relative w-full h-150 flex flex-col justify-center items-center overflow-hidden">
+      <section className="relative w-full h-150 flex flex-col justify-center items-center overflow-visible">
         <div className="absolute inset-0 bg-[#e11d48] z-0">
           <div className="absolute inset-0 bg-linear-to-b from-black/10 via-transparent to-black/20"></div>
-          <div className="absolute top-[-10%] left-[-10%] w-125 h-125 bg-rose-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob"></div>
-          <div className="absolute top-[-10%] right-[-10%] w-125 h-125 bg-orange-300 rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute -bottom-32 left-[20%] w-150 h-150 bg-rose-600 rounded-full mix-blend-multiply filter blur-[120px] opacity-70 animate-blob animation-delay-4000"></div>
           <div
             className="absolute inset-0 opacity-[0.1]"
             style={{
@@ -169,7 +166,7 @@ const Home = () => {
           ></div>
         </div>
 
-        <div className="relative z-10 text-center px-4 w-full max-w-5xl space-y-8">
+        <div className="relative z-30 text-center px-4 w-full max-w-5xl space-y-8">
           <div className="space-y-4">
             <h1 className="font-(family-name:--font-outfit) text-6xl md:text-8xl font-black text-white tracking-tight drop-shadow-2xl">
               Savora
@@ -228,7 +225,7 @@ const Home = () => {
             </button>
 
             {showSuggestions && (
-              <div className="absolute top-[115%] left-0 w-full bg-white rounded-2xl shadow-2xl overflow-hidden z-60 border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
+              <div className="absolute top-[115%] left-0 w-full bg-white rounded-2xl shadow-2xl overflow-hidden z-100 border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
                 <div className="py-2">
                   <h3 className="px-6 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider">
                     Top Results
@@ -281,7 +278,7 @@ const Home = () => {
           </div>
         </div>
 
-        <div className="absolute bottom-0 w-full leading-none z-10">
+        <div className="absolute bottom-0 w-full leading-none z-0">
           <svg
             className="block w-full h-15 md:h-25"
             viewBox="0 0 1440 320"
