@@ -10,17 +10,19 @@ import connectDB from "./src/config/db.js";
 import AuthRouter from "./src/routers/authRouter.js";
 import publicRouter from "./src/routers/publicRouter.js";
 import restaurantRouter from "./src/routers/restaurantRouter.js";
-
+import orderRouter from "./src/routers/orderRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 4500;
 
-app.use(cors({ 
-  origin: ["http://localhost:5173", "http://localhost:5174"], 
-  credentials: true 
-}));
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "http://localhost:5174"],
+    credentials: true,
+  }),
+);
 
-app.use(express.json({ limit: "10mb" })); 
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 app.use(cookieParser());
@@ -29,6 +31,8 @@ app.use(morgan("dev"));
 app.use("/auth", AuthRouter);
 app.use("/public", publicRouter);
 app.use("/restaurant", restaurantRouter);
+app.use("/order", orderRouter);
+
 app.get("/", (req, res) => {
   res.send("Server is Working Properly");
 });
