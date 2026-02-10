@@ -13,6 +13,7 @@ import ResturentDashboard from "./pages/dashboards/ResturentDashboard";
 import RiderDashboard from "./pages/dashboards/RiderDashboard";
 import Order from "./pages/Order";
 import RestaurantDetails from "./pages/RestaurantDetails";
+import Cart from "./pages/Cart";
 
 const App = () => {
   return (
@@ -28,6 +29,7 @@ const App = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/order" element={<Order />} />
           <Route path="/restaurant/:id" element={<RestaurantDetails/>}/>
+          <Route path="/cart" element={<Cart/>} />
 
           <Route path="/user-dashboard" element={<UserDashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />

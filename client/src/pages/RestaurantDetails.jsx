@@ -68,18 +68,15 @@ const RestaurantDetails = () => {
   }, [id, navigate]);
 
   const availableCuisines = useMemo(() => {
-    const cuisines = new Set(
-      menuItems.map((item) => item.cuisine).filter(Boolean),
-    );
-    return ["All", ...Array.from(cuisines)];
+    const list = new Set(menuItems.map((item) => item.cuisine).filter(Boolean));
+    return ["All", ...Array.from(list)];
   }, [menuItems]);
 
   const filteredItems = useMemo(() => {
     return menuItems.filter((item) => {
-      const matchSearch =
-        item.itemName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (item.description &&
-          item.description.toLowerCase().includes(searchQuery.toLowerCase()));
+      const matchSearch = item.itemName
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
       const matchVeg = isVegOnly
         ? item.type === "veg" || item.type === "vegan"
         : true;
@@ -93,9 +90,9 @@ const RestaurantDetails = () => {
   const groupedMenu = useMemo(() => {
     const grouped = {};
     filteredItems.forEach((item) => {
-      const groupKey = item.category || item.cuisine || "Menu";
-      if (!grouped[groupKey]) grouped[groupKey] = [];
-      grouped[groupKey].push(item);
+      const key = item.category || item.cuisine || "Menu";
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(item);
     });
     return grouped;
   }, [filteredItems]);
@@ -113,7 +110,7 @@ const RestaurantDetails = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 font-(family-name:--font-poppins) flex flex-col">
-      <header className="relative h-75 w-full bg-gray-900 overflow-hidden">
+      <header className="relative h-80 w-full bg-gray-900 group overflow-hidden">
         <div className="absolute inset-0">
           <img
             src={
@@ -121,7 +118,7 @@ const RestaurantDetails = () => {
               "https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2000&auto=format&fit=crop"
             }
             alt="Cover"
-            className="w-full h-full object-cover opacity-60"
+            className="w-full h-full object-cover opacity-60 transition-transform duration-700 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-linear-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
         </div>
@@ -129,15 +126,15 @@ const RestaurantDetails = () => {
         <div className="absolute top-0 w-full p-4 md:p-6 flex justify-between items-start z-10">
           <button
             onClick={() => navigate(-1)}
-            className="p-2.5 bg-white/10 backdrop-blur-md text-white rounded-full hover:bg-white/20 border border-white/10"
+            className="p-3 bg-white/10 backdrop-blur-md text-white rounded-full hover:bg-white/20 border border-white/10"
           >
             <ChevronLeft size={22} />
           </button>
           <div className="flex gap-3">
-            <button className="p-2.5 bg-white/10 backdrop-blur-md text-white rounded-full hover:bg-white/20 border border-white/10">
+            <button className="p-3 bg-white/10 backdrop-blur-md text-white rounded-full hover:bg-white/20 border border-white/10">
               <Heart size={20} />
             </button>
-            <button className="p-2.5 bg-white/10 backdrop-blur-md text-white rounded-full hover:bg-white/20 border border-white/10">
+            <button className="p-3 bg-white/10 backdrop-blur-md text-white rounded-full hover:bg-white/20 border border-white/10">
               <Share2 size={20} />
             </button>
           </div>
@@ -145,7 +142,7 @@ const RestaurantDetails = () => {
 
         <div className="absolute bottom-0 w-full px-4 md:px-8 pb-6 z-10">
           <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-end gap-6">
-            <div className="hidden md:block w-32 h-32 rounded-2xl bg-white p-1.5 shadow-2xl relative -mb-10 shrink-0 border border-gray-100 rotate-1">
+            <div className="hidden md:block w-36 h-36 rounded-2xl bg-white p-1.5 shadow-2xl relative -mb-10 shrink-0 border border-gray-100 z-20">
               <img
                 src={
                   restaurant.photo?.url ||
@@ -158,20 +155,20 @@ const RestaurantDetails = () => {
             </div>
 
             <div className="flex-1 text-white pb-1">
-              <h1 className="text-3xl md:text-5xl font-black font-brand tracking-tight mb-2 shadow-sm">
+              <h1 className="text-3xl md:text-6xl font-black font-brand tracking-tight mb-2 shadow-sm drop-shadow-lg">
                 {restaurant.restaurantName}
               </h1>
-              <p className="text-gray-300 text-sm md:text-base font-medium mb-3 flex items-center gap-2">
+              <p className="text-gray-300 text-sm md:text-lg font-medium mb-3 flex items-center gap-2">
                 {restaurant.cuisine}{" "}
-                <span className="w-1 h-1 rounded-full bg-gray-400"></span>{" "}
+                <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>{" "}
                 {restaurant.city}
               </p>
               <div className="flex flex-wrap gap-3">
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-white font-bold text-xs bg-green-600 shadow-sm">
-                  <Star size={12} fill="currentColor" /> 4.2
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white font-bold text-xs bg-green-600 shadow-lg backdrop-blur-md">
+                  <Star size={14} fill="currentColor" /> 4.2
                 </div>
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-white font-bold text-xs bg-white/20 border border-white/10 backdrop-blur-md">
-                  <Clock size={12} /> {restaurant.deliveryTime || 30} mins
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white font-bold text-xs bg-white/20 border border-white/10 backdrop-blur-md">
+                  <Clock size={14} /> {restaurant.deliveryTime || 30} mins
                 </div>
               </div>
             </div>
@@ -179,8 +176,8 @@ const RestaurantDetails = () => {
         </div>
       </header>
 
-      <div className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 md:px-8 py-3">
+      <div className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm transition-all">
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-5">
           <div
             className="flex flex-col md:flex-row gap-3 items-center"
             ref={filterRef}
@@ -195,7 +192,7 @@ const RestaurantDetails = () => {
                 placeholder="Search menu..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-gray-100 border border-transparent pl-10 pr-10 py-2 rounded-xl text-sm font-semibold text-gray-700 focus:bg-white focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 focus:outline-none transition-all"
+                className="w-full bg-gray-100 border border-transparent pl-10 pr-10 py-2.5 rounded-xl text-sm font-semibold text-gray-700 focus:bg-white focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 focus:outline-none transition-all"
               />
               {searchQuery && (
                 <button
@@ -211,7 +208,7 @@ const RestaurantDetails = () => {
               <div
                 onClick={() => setIsVegOnly(!isVegOnly)}
                 className={`
-                       flex items-center gap-2 px-3 py-2 rounded-xl cursor-pointer border transition-all select-none shrink-0 
+                       flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer border transition-all select-none shrink-0 
                        ${isVegOnly ? "bg-green-50 border-green-500 text-green-700 shadow-sm" : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"}
                     `}
               >
@@ -231,7 +228,7 @@ const RestaurantDetails = () => {
                       activeDropdown === "cuisine" ? null : "cuisine",
                     )
                   }
-                  className={`flex items-center gap-2 px-3 py-2 bg-white border rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition-all ${selectedCuisine !== "All" ? "border-rose-500 text-rose-600 bg-rose-50" : "border-gray-200"}`}
+                  className={`flex items-center gap-2 px-4 py-2.5 bg-white border rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition-all ${selectedCuisine !== "All" ? "border-rose-500 text-rose-600 bg-rose-50" : "border-gray-200"}`}
                 >
                   <span>
                     {selectedCuisine === "All" ? "Cuisines" : selectedCuisine}
@@ -264,7 +261,7 @@ const RestaurantDetails = () => {
                   onClick={() =>
                     setActiveDropdown(activeDropdown === "type" ? null : "type")
                   }
-                  className={`flex items-center gap-2 px-3 py-2 bg-white border rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition-all ${selectedType !== "All" ? "border-rose-500 text-rose-600 bg-rose-50" : "border-gray-200"}`}
+                  className={`flex items-center gap-2 px-4 py-2.5 bg-white border rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition-all ${selectedType !== "All" ? "border-rose-500 text-rose-600 bg-rose-50" : "border-gray-200"}`}
                 >
                   <Filter size={14} />
                   <span className="capitalize">
@@ -304,7 +301,12 @@ const RestaurantDetails = () => {
               Matches not found for "{searchQuery}" with current filters.
             </p>
             <button
-              onClick={clearFilters}
+              onClick={() => {
+                setSearchQuery("");
+                setIsVegOnly(false);
+                setSelectedCuisine("All");
+                setSelectedType("All");
+              }}
               className="text-rose-600 font-bold text-sm hover:underline"
             >
               Clear all filters
@@ -314,13 +316,13 @@ const RestaurantDetails = () => {
           menuSections.map((section) => (
             <div key={section} id={section}>
               <div className="flex items-center gap-3 mb-6">
-                <h2 className="text-xl font-black text-gray-800 font-(family-name:--font-outfit)">
+                <h2 className="text-2xl font-black text-gray-800 font-brand">
                   {section}
                 </h2>
                 <span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-full border border-gray-200">
                   {groupedMenu[section].length}
                 </span>
-                <div className="h-px bg-gray-100 flex-1"></div>
+                <div className="h-px bg-gray-200 flex-1"></div>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -343,20 +345,22 @@ const RestaurantDetails = () => {
         <div className="fixed bottom-6 left-4 right-4 max-w-3xl mx-auto z-90 animate-in slide-in-from-bottom-4 duration-300">
           <button
             onClick={() => navigate("/cart")}
-            className="w-full bg-gray-900 text-white p-4 rounded-2xl shadow-2xl shadow-gray-900/40 flex justify-between items-center hover:scale-[1.01] transition-transform group border border-white/10"
+            className="w-full bg-gray-900 text-white p-4 rounded-2xl shadow-2xl shadow-rose-900/30 flex justify-between items-center hover:scale-[1.01] transition-transform group border border-white/10"
           >
             <div className="flex flex-col items-start pl-2">
               <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">
                 {getCartCount()} ITEMS ADDED
               </span>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-xl font-black">₹{getCartTotal()}</span>
+                <span className="text-xl font-black font-brand">
+                  ₹{getCartTotal()}
+                </span>
                 <span className="text-xs text-gray-500 font-medium">
                   + taxes
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-3 bg-white text-gray-900 px-6 py-3 rounded-xl font-bold text-sm group-hover:bg-gray-100 transition-colors shadow-lg">
+            <div className="flex items-center gap-3 bg-white text-gray-900 px-6 py-3 rounded-xl font-bold text-sm group-hover:bg-rose-50 group-hover:text-rose-600 transition-colors shadow-lg">
               View Cart <ShoppingBag size={18} strokeWidth={2.5} />
             </div>
           </button>
@@ -382,9 +386,9 @@ const MenuItemCard = ({ item, cartItems, addToCart, removeFromCart }) => {
       };
     if (["egg"].includes(type))
       return {
-        color: "text-yellow-600",
-        border: "border-yellow-600",
-        bg: "bg-yellow-600",
+        color: "text-yellow-500",
+        border: "border-yellow-500",
+        bg: "bg-yellow-500",
       };
     return {
       color: "text-red-600",
@@ -396,32 +400,35 @@ const MenuItemCard = ({ item, cartItems, addToCart, removeFromCart }) => {
   const typeStyle = getTypeStyle(item.type);
 
   return (
-    <div className="bg-white p-4 rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-lg transition-all duration-300 flex justify-between gap-4 group h-full">
-      <div className="flex-1 flex flex-col">
-        <div className="flex items-center gap-2 mb-2">
-          <div
-            className={`border ${typeStyle.border} p-0.5 rounded-sm flex items-center justify-center`}
-          >
-            <div className={`w-2 h-2 rounded-full ${typeStyle.bg}`}></div>
+    <div className="bg-white p-4 rounded-3xl border border-gray-100 hover:border-rose-100 hover:shadow-xl hover:shadow-rose-100/30 transition-all duration-300 flex justify-between gap-4 group h-full">
+      <div className="flex-1 flex flex-col justify-between">
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <div
+              className={`border ${typeStyle.border} p-0.5 rounded-sm flex items-center justify-center`}
+            >
+              <div className={`w-2 h-2 rounded-full ${typeStyle.bg}`}></div>
+            </div>
+            {item.type === "bestseller" && (
+              <span className="text-[10px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded flex items-center gap-1">
+                <Flame size={10} fill="currentColor" /> BESTSELLER
+              </span>
+            )}
           </div>
-          {item.type === "bestseller" && (
-            <span className="text-[10px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded flex items-center gap-1">
-              <Flame size={10} fill="currentColor" /> BESTSELLER
-            </span>
-          )}
+
+          <h3 className="font-bold text-gray-900 text-lg leading-tight mb-1 font-brand group-hover:text-rose-600 transition-colors">
+            {item.itemName}
+          </h3>
+          <span className="font-bold text-gray-700 text-sm">₹{item.price}</span>
         </div>
 
-        <h3 className="font-bold text-gray-900 text-lg leading-tight mb-1 font-(family-name:--font-outfit) group-hover:text-rose-600 transition-colors line-clamp-1">
-          {item.itemName}
-        </h3>
-        <span className="font-bold text-gray-700 text-sm">₹{item.price}</span>
         <p className="text-gray-500 text-xs leading-relaxed line-clamp-2 mt-2 pr-2">
           {item.description}
         </p>
       </div>
 
-      <div className="relative w-28 md:w-32 shrink-0 flex flex-col items-center">
-        <div className="w-28 h-28 rounded-xl overflow-hidden bg-gray-50 shadow-inner">
+      <div className="relative w-32 shrink-0 flex flex-col items-center">
+        <div className="w-28 h-28 rounded-2xl overflow-hidden bg-gray-50 shadow-inner">
           <img
             src={item.images?.[0]?.url || "https://placehold.co/150"}
             alt={item.itemName}
@@ -430,11 +437,11 @@ const MenuItemCard = ({ item, cartItems, addToCart, removeFromCart }) => {
         </div>
 
         <div
-          className={`absolute -bottom-3 w-24 h-9 bg-white rounded-lg shadow-lg border border-gray-100 flex items-center justify-center overflow-hidden transition-all z-10 ${!isAvailable && "opacity-75"}`}
+          className={`absolute -bottom-3 w-24 h-9 bg-white rounded-lg shadow-lg border border-gray-100 flex items-center justify-center overflow-hidden transition-all z-10 ${!isAvailable ? "opacity-75" : ""} ${qty > 0 ? "border-rose-100" : ""}`}
         >
           {!isAvailable ? (
-            <span className="text-[10px] font-bold text-gray-400">
-              SOLD OUT
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+              Sold Out
             </span>
           ) : qty === 0 ? (
             <button
@@ -450,14 +457,14 @@ const MenuItemCard = ({ item, cartItems, addToCart, removeFromCart }) => {
             <div className="flex w-full h-full items-center justify-between px-1">
               <button
                 onClick={removeFromCart}
-                className="w-7 h-full flex items-center justify-center text-rose-600 hover:bg-rose-50"
+                className="w-8 h-full flex items-center justify-center text-rose-600 hover:bg-rose-50 transition-colors"
               >
                 <Minus size={14} strokeWidth={3} />
               </button>
               <span className="font-bold text-gray-900 text-sm">{qty}</span>
               <button
                 onClick={addToCart}
-                className="w-7 h-full flex items-center justify-center text-rose-600 hover:bg-rose-50"
+                className="w-8 h-full flex items-center justify-center text-rose-600 hover:bg-rose-50 transition-colors"
               >
                 <Plus size={14} strokeWidth={3} />
               </button>
