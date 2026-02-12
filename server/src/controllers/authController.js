@@ -108,7 +108,6 @@ export const UpdateUserProfile = async (req, res, next) => {
 
     const updateData = {};
 
-    // Basic fields
     if (fullName) updateData.fullName = fullName;
     if (mobileNumber) updateData.mobileNumber = mobileNumber;
     if (address) updateData.address = address;
@@ -118,11 +117,9 @@ export const UpdateUserProfile = async (req, res, next) => {
     if (city) updateData.city = city;
     if (pin) updateData.pin = pin;
 
-    // Restaurant-specific fields
     if (restaurantName) updateData.restaurantName = restaurantName;
     if (cuisine) updateData.cuisine = cuisine;
 
-    // Handle nested objects - parse if they come as JSON strings
     if (geoLocation) {
       updateData.geoLocation =
         typeof geoLocation === "string" ? JSON.parse(geoLocation) : geoLocation;
@@ -138,7 +135,6 @@ export const UpdateUserProfile = async (req, res, next) => {
         typeof documents === "string" ? JSON.parse(documents) : documents;
     }
 
-    // Handle photo upload
     if (file) {
       const result = await uploadToCloudinary(file.buffer);
 

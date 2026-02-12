@@ -1,63 +1,64 @@
-# Savora_App — Client
+# 🍔 Savora - Client (Frontend)
 
-This repository is a monorepo for the Savora application. The `client` folder contains a React + Vite frontend.
+The frontend client for **Savora**, a full-stack multi-vendor food delivery platform. This application provides a seamless, responsive interface for Customers, Restaurant Partners, and Administrators.
 
-Currently, two official plugins are available:
+Built with **React 19** and **Vite**, utilizing **Tailwind CSS v4** for modern, utility-first styling.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## ⚡ Tech Stack & Key Libraries
 
-Quick overview
-- Frontend: React + Vite
-- Styling: Tailwind CSS (configured in the project)
-- Routing: react-router-dom
-- HTTP: axios
+We chose a modern stack focused on performance, developer experience, and scalability.
 
-## Expanding the ESLint configuration
+| Category | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Core** | [React v19](https://react.dev/) | Utilizing latest Concurrent features and Hooks. |
+| **Build Tool** | [Vite](https://vitejs.dev/) | Lightning-fast HMR and optimized production builds. |
+| **Routing** | [React Router v7](https://reactrouter.com/) | Client-side routing with nested layouts. |
+| **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) | Design system and responsive layouts via `@tailwindcss/vite`. |
+| **State Management** | Context API | Global state for Authentication (`AuthContext`) and Shopping Cart (`CartContext`). |
+| **Data Fetching** | [Axios](https://axios-http.com/) | Centralized API client with interceptors for JWT handling. |
+| **Visualization** | [Recharts](https://recharts.org/) | Interactive analytics charts for Restaurant Dashboards. |
+| **UI Components** | [Lucide React](https://lucide.dev/) | Lightweight, consistent SVG icons. |
+| **Notifications** | React Hot Toast | Minimalist toast notifications for user feedback. |
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
 
-Prerequisites
-- Node.js (v16+ recommended)
-- npm (or yarn)
+## 📂 Project Structure
 
-Local development
-1. Install dependencies:
+The codebase follows a feature-based modular architecture to ensure maintainability.
 
-	cd client
-	npm install
-
-2. Start the dev server:
-
-	npm run dev
-
-The frontend dev server runs with Vite and supports HMR. Open the URL printed by Vite (usually http://localhost:5173).
-
-Server (backend)
-The backend lives in the `server` folder. To run the backend locally:
-
-	cd ../server
-	npm install
-
-Create a `.env` file in the `server` folder with the required environment variables. Typical variables used by the project:
-
-- `PORT` — server port (e.g. 5000)
-- `MONGO_URI` — MongoDB connection string
-- `JWT_SECRET` — secret for signing JSON Web Tokens
-- `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` — for image uploads (if used)
-- Email settings (if used): `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USER`, `EMAIL_PASS`
-
-Start the backend in development mode:
-
-	npm run dev
-
-API
-The backend exposes REST endpoints under the routes defined in `server/src/routers`. When running locally, point the frontend API calls to the backend URL (for example, `http://localhost:5000`).
-
-Project structure (top-level)
-- `client/` — React frontend (this folder)
-- `server/` — Node/Express backend
+```text
+client/src
+├── assets/              # Static assets and global styles
+├── components/          # Reusable UI components
+│   ├── publicModels/    # Global modals (e.g., Forgot Password)
+│   ├── resturantModals/ # Partner-specific forms (Add Item, Edit Menu)
+│   ├── resturentDashboard/ # Dashboard widgets (Sidebar, Transactions, Graphs)
+│   ├── userDashboard/   # Customer profile components
+│   ├── Header.jsx       # Adaptive navigation bar (Context-aware)
+│   └── Footer.jsx       # Global footer
+├── config/
+│   └── Api.jsx          # Axios instance configuration & base URLs
+├── context/
+│   ├── AuthContext.jsx  # Authentication logic & User Role handling
+│   └── CartContext.jsx  # Shopping cart logic (Add/Remove, Persistence)
+├── pages/
+│   ├── auth/            # Login & Register views
+│   ├── dashboards/      # Role-protected dashboard views
+│   ├── Home.jsx         # Landing page
+│   ├── Order.jsx        # Restaurant listing & filtering
+│   ├── RestaurantDetails.jsx # Dynamic menu page
+│   └── Cart.jsx         # Checkout interface
+├── App.jsx              # Main application router
+└── main.jsx             # Entry point
 
 
+## 🔌 Backend Integration
+
+This client communicates with the `server` (Node/Express) via a centralized Axios instance located in `src/config/Api.jsx`.
+
+**Key Integration Features:**
+* **Interceptors:** Automatically attaches the JWT token from `localStorage` to every authorized request.
+* **Error Handling:** Global error catching for expired tokens (401 Unauthorized), redirecting users to login when necessary.
+* **Base URL:** configured dynamically via Vite environment variables for seamless switching between Development and Production.
