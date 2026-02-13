@@ -11,6 +11,7 @@ import AuthRouter from "./src/routers/authRouter.js";
 import publicRouter from "./src/routers/publicRouter.js";
 import restaurantRouter from "./src/routers/restaurantRouter.js";
 import orderRouter from "./src/routers/orderRoutes.js";
+import cloudinary from "./src/config/cloudinaryUpload.js";
 
 const app = express();
 const PORT = process.env.PORT || 4500;
@@ -49,7 +50,10 @@ app.listen(PORT, async () => {
   try {
     await connectDB();
     console.log("Database Connected Successfully");
+    const res = await cloudinary.api.ping();
+    console.log("Cloudinary API is Working:", res);
   } catch (error) {
     console.error("Database Connection Failed:", error);
+    console.error("Error Connecting Cloudinary API:", error);
   }
 });
