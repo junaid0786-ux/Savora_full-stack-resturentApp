@@ -3,7 +3,7 @@ dotenv.config();
 import connectDB from "../config/db.js";
 import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
-import { DummyAdminData } from "./dummy.js";
+import { DummyAdminData } from "./dummyUsers.js";
 
 const seedAdmin = async () => {
   try {

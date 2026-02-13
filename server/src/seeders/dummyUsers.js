@@ -10,13 +10,21 @@ export const DummyRestaurantData = [
     address: "Shop 12, Main Market",
     city: "Mumbai",
     pin: "400001",
-    restaurantName: "The Royal Tandoor",
-    cuisine: "North Indian",
+    photo: {
+      url: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80",
+      publicID: "rest_ambiance_v1",
+    },
+    geoLocation: {
+      lat: "19.0760",
+      lon: "72.8777",
+    },
     paymentDetails: {
       upi: "arjun@upi",
       account_number: "1234567890",
       ifs_Code: "HDFC0001234",
     },
+    restaurantName: "The Royal Tandoor",
+    cuisine: "North Indian",
     documents: {
       gst: "27AABCU9603R1ZM",
       fssai: "11516001000123",
@@ -25,6 +33,7 @@ export const DummyRestaurantData = [
       rc: "N/A",
       dl: "N/A",
     },
+    isActive: "active",
   },
   {
     fullName: "Sneha Reddy",
@@ -37,13 +46,21 @@ export const DummyRestaurantData = [
     address: "Plot 45, Hitech City",
     city: "Hyderabad",
     pin: "500081",
-    restaurantName: "Spice & Rice",
-    cuisine: "South Indian",
+    photo: {
+      url: "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80",
+      publicID: "rest_ambiance_v2",
+    },
+    geoLocation: {
+      lat: "17.4435",
+      lon: "78.3772",
+    },
     paymentDetails: {
       upi: "sneha@upi",
       account_number: "0987654321",
       ifs_Code: "SBIN0004567",
     },
+    restaurantName: "Spice & Rice",
+    cuisine: "South Indian",
     documents: {
       gst: "36AAACH7890K1Z2",
       fssai: "11617002000456",
@@ -52,6 +69,7 @@ export const DummyRestaurantData = [
       rc: "N/A",
       dl: "N/A",
     },
+    isActive: "active",
   },
   {
     fullName: "Vikram Malhotra",
@@ -64,13 +82,21 @@ export const DummyRestaurantData = [
     address: "Sector 18",
     city: "Noida",
     pin: "201301",
-    restaurantName: "Urban Burger Co.",
-    cuisine: "Fast Food",
+    photo: {
+      url: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80",
+      publicID: "rest_ambiance_v3",
+    },
+    geoLocation: {
+      lat: "28.5700",
+      lon: "77.3200",
+    },
     paymentDetails: {
       upi: "vikram@upi",
       account_number: "1122334455",
       ifs_Code: "ICIC0007890",
     },
+    restaurantName: "Urban Burger Co.",
+    cuisine: "Fast Food",
     documents: {
       gst: "09AAACO5678L1Z9",
       fssai: "12718003000789",
@@ -79,6 +105,7 @@ export const DummyRestaurantData = [
       rc: "N/A",
       dl: "N/A",
     },
+    isActive: "active",
   },
   {
     fullName: "Priya Sharma",
@@ -91,13 +118,21 @@ export const DummyRestaurantData = [
     address: "Indiranagar",
     city: "Bangalore",
     pin: "560038",
-    restaurantName: "Green Leaf Bistro",
-    cuisine: "Healthy/Vegan",
+    photo: {
+      url: "https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=800&q=80",
+      publicID: "rest_ambiance_v4",
+    },
+    geoLocation: {
+      lat: "12.9784",
+      lon: "77.6408",
+    },
     paymentDetails: {
       upi: "priya@upi",
       account_number: "5544332211",
       ifs_Code: "UTIB0001122",
     },
+    restaurantName: "Green Leaf Bistro",
+    cuisine: "Healthy/Vegan",
     documents: {
       gst: "29AAACP1234M1Z5",
       fssai: "11219004000321",
@@ -106,6 +141,7 @@ export const DummyRestaurantData = [
       rc: "N/A",
       dl: "N/A",
     },
+    isActive: "active",
   },
   {
     fullName: "Rahim Khan",
@@ -118,13 +154,21 @@ export const DummyRestaurantData = [
     address: "Park Street",
     city: "Kolkata",
     pin: "700016",
-    restaurantName: "Kolkata Rolls & Biryani",
-    cuisine: "Mughlai",
+    photo: {
+      url: "https://images.unsplash.com/photo-1546237769-1f396d000403?auto=format&fit=crop&w=800&q=80",
+      publicID: "rest_ambiance_v5",
+    },
+    geoLocation: {
+      lat: "22.5551",
+      lon: "88.3514",
+    },
     paymentDetails: {
       upi: "rahim@upi",
       account_number: "6677889900",
       ifs_Code: "PUNB0005566",
     },
+    restaurantName: "Kolkata Rolls & Biryani",
+    cuisine: "Mughlai",
     documents: {
       gst: "19AAACR4567N1Z8",
       fssai: "12820005000654",
@@ -133,6 +177,7 @@ export const DummyRestaurantData = [
       rc: "N/A",
       dl: "N/A",
     },
+    isActive: "active",
   },
 ];
 
