@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import api from "../config/Api";
 import Footer from "../components/Footer";
 import {
   ShoppingBag,
@@ -10,27 +11,52 @@ import {
   Minus,
   MapPin,
   Clock,
-  TicketPercent,
   ArrowRight,
   ShieldCheck,
   UtensilsCrossed,
-  AlertCircle,
+  Phone,
+  CheckCircle2,
+  Building,
+  Navigation,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
 const Cart = () => {
-  const navigate = useNavigate();
-  const { cartItems, addToCart, removeFromCart, clearCart, getCartTotal } =
-    useCart();
+  const {
+    cartItems,
+    addToCart,
+    removeFromCart,
+    clearCart,
+    getCartTotal,
+    restaurant,
+  } = useCart();
   const { user } = useAuth();
 
   const [loading, setLoading] = useState(true);
-  const [instructions, setInstructions] = useState("");
+  const [isPlacing, setIsPlacing] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false);
+
+  const [contactNumber, setContactNumber] = useState("");
+  const [addressDetails, setAddressDetails] = useState({
+    address: "",
+    city: "",
+    pin: "",
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 600);
+    if (user) {
+      setContactNumber(user.mobileNumber || "");
+      if (user.address && typeof user.address === "object") {
+        setAddressDetails({
+          address: user.address.street || "",
+          city: user.address.city || "",
+          pin: user.address.pincode || "",
+        });
+      }
+    }
     return () => clearTimeout(timer);
-  }, [cartItems]);
+  }, [user]);
 
   const itemTotal = getCartTotal();
   const deliveryFee = itemTotal > 500 ? 0 : 40;
@@ -38,307 +64,302 @@ const Cart = () => {
   const gst = Math.round(itemTotal * 0.05);
   const grandTotal = itemTotal + deliveryFee + platformFee + gst;
 
-  const userAddress = user?.address
-    ? typeof user.address === "string"
-      ? user.address
-      : `${user.address.street || ""}, ${user.address.city || ""}`
-    : null;
-
-  const handlePlaceOrder = () => {
-    if (!userAddress) {
-      toast.error("Please add a delivery address first");
-      return;
-    }
-    toast.success("Redirecting to Payment Gateway...");
+  const handleAddressChange = (e) => {
+    const { name, value } = e.target;
+    setAddressDetails((prev) => ({ ...prev, [name]: value }));
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-[80vh] flex flex-col items-center justify-center bg-gray-50">
-        <Loader />
-        <p className="mt-4 text-gray-500 font-medium text-sm animate-pulse">
-          Syncing cart...
-        </p>
-      </div>
-    );
-  }
+  const handlePlaceOrder = async () => {
+    if (
+      !addressDetails.address ||
+      !addressDetails.city ||
+      !addressDetails.pin ||
+      !contactNumber
+    ) {
+      toast.error("Please fill in all delivery details");
+      return;
+    }
 
-  if (cartItems.length === 0) {
+    if (!restaurant?._id) {
+      toast.error("Restaurant information missing");
+      return;
+    }
+
+    setIsPlacing(true);
+    const loadingToast = toast.loading("Processing your order...");
+
+    try {
+      const orderData = {
+        restaurantID: restaurant._id,
+        items: cartItems.map((item) => ({
+          menuItemID: item._id,
+          itemName: item.itemName,
+          quantity: item.qty,
+          price: item.price,
+        })),
+        deliveryAddress: addressDetails,
+        contactNumber: contactNumber,
+        totalAmount: grandTotal,
+      };
+
+      const response = await api.post("/order/create", orderData);
+
+      if (response.data.success) {
+        toast.dismiss(loadingToast);
+        setOrderSuccess(true);
+        clearCart();
+      }
+    } catch (error) {
+      toast.dismiss(loadingToast);
+      toast.error(error.response?.data?.message || "Internal Server Error");
+    } finally {
+      setIsPlacing(false);
+    }
+  };
+
+  if (loading)
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <div className="flex-1 flex flex-col items-center justify-center p-4">
-          <div className="w-48 h-48 bg-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] mb-6">
-            <UtensilsCrossed size={64} className="text-gray-200" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 font-(family-name:--font-outfit) mb-2">
-            Your Cart is Empty
-          </h2>
-          <p className="text-gray-500 mb-8 text-center max-w-sm text-sm">
-            Good food is always cooking! Go ahead, order some yummy items from
-            the menu.
-          </p>
-          <Link
-            to="/order"
-            className="px-8 py-3 bg-rose-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-rose-600/20 hover:bg-rose-700 hover:scale-105 transition-all flex items-center gap-2"
-          >
-            See Restaurants Near You
-          </Link>
-        </div>
-        <Footer />
+      <div className="min-h-screen flex items-center justify-center bg-rose-50">
+        <Loader />
       </div>
     );
-  }
+
+  if (orderSuccess)
+    return <SuccessView onContinue={() => setOrderSuccess(false)} />;
+
+  if (cartItems.length === 0) return <EmptyCartView />;
 
   return (
-    <div className="min-h-screen bg-gray-50 font-(family-name:--font-poppins) flex flex-col">
-      <main className="flex-1 max-w-6xl mx-auto w-full px-4 md:px-8 py-8 md:py-12">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 font-(family-name:--font-outfit) mb-8">
+    <div className="min-h-screen bg-rose-50 font-poppins flex flex-col">
+      <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-8 md:py-12">
+        <h1 className="text-3xl font-bold mb-8 font-outfit text-gray-900 text-center md:text-left">
           Secure Checkout
         </h1>
 
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+        <div className="flex flex-col lg:flex-row gap-8">
           <div className="flex-1 space-y-6">
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <div className="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-rose-50 flex items-center justify-center text-rose-600">
-                    <ShoppingBag size={20} />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-gray-900 font-(family-name:--font-outfit)">
-                      Order Summary
-                    </h2>
-                    <p className="text-xs text-gray-500">
-                      {cartItems.length} Items
-                    </p>
-                  </div>
-                </div>
+            {/* 1. ORDER SUMMARY */}
+            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 transition-all hover:shadow-md">
+              <div className="flex justify-between items-center mb-6 border-b pb-4">
+                <h2 className="font-bold text-xl text-gray-800 flex items-center gap-2">
+                  <ShoppingBag className="text-rose-500" size={22} /> Order
+                  Summary
+                </h2>
                 <button
                   onClick={clearCart}
-                  className="text-xs font-bold text-rose-600 hover:bg-rose-50 px-3 py-2 rounded-lg transition-colors flex items-center gap-2"
+                  className="text-rose-600 text-xs font-bold hover:bg-rose-100 px-3 py-2 rounded-xl transition-all cursor-pointer active:scale-95"
                 >
-                  <Trash2 size={14} /> Clear
+                  Clear All
                 </button>
               </div>
-
               <div className="space-y-6">
                 {cartItems.map((item) => (
-                  <div key={item._id} className="flex gap-4">
-                    <div className="w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-gray-100 border border-gray-100">
-                      <img
-                        src={
-                          item.images?.[0]?.url || "https://placehold.co/150"
-                        }
-                        alt={item.itemName}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
-                    <div className="flex-1 flex flex-col justify-between py-0.5">
-                      <div className="flex justify-between items-start gap-4">
-                        <h3 className="font-bold text-gray-800 text-sm line-clamp-1">
-                          {item.itemName}
-                        </h3>
-                        <span className="font-bold text-gray-900 text-sm whitespace-nowrap">
-                          ₹{item.price * item.qty}
-                        </span>
-                      </div>
-
-                      <div className="flex justify-between items-end mt-2">
-                        <p className="text-xs text-gray-400 font-medium">
-                          ₹{item.price} x {item.qty}
-                        </p>
-
-                        <div className="flex items-center border border-gray-200 rounded-lg bg-white h-7 shadow-sm">
-                          <button
-                            onClick={() => removeFromCart(item._id)}
-                            className="w-8 h-full flex items-center justify-center text-rose-600 hover:bg-rose-50 transition-colors"
-                          >
-                            <Minus size={14} strokeWidth={2.5} />
-                          </button>
-                          <span className="text-xs font-bold text-gray-900 px-1 min-w-5 text-center">
-                            {item.qty}
-                          </span>
-                          <button
-                            onClick={() => addToCart(item)}
-                            className="w-8 h-full flex items-center justify-center text-rose-600 hover:bg-rose-50 transition-colors"
-                          >
-                            <Plus size={14} strokeWidth={2.5} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <CartItemRow
+                    key={item._id}
+                    item={item}
+                    onAdd={() => addToCart(item)}
+                    onRemove={() => removeFromCart(item._id)}
+                  />
                 ))}
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2 text-sm">
-                <Clock size={16} className="text-gray-400" /> Delivery
-                Instructions
-              </h3>
-              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                {["Avoid calling", "Leave at door", "Directions to reach"].map(
-                  (opt) => (
-                    <button
-                      key={opt}
-                      onClick={() =>
-                        setInstructions((prev) =>
-                          prev.includes(opt) ? prev : `${prev} ${opt}`.trim(),
-                        )
-                      }
-                      className="whitespace-nowrap px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-medium text-gray-600 hover:border-rose-500 hover:text-rose-600 hover:bg-rose-50 transition-all"
-                    >
-                      {opt}
-                    </button>
-                  ),
-                )}
+            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 space-y-6 transition-all hover:shadow-md">
+              <h2 className="font-bold text-xl text-gray-800 flex items-center gap-2">
+                <MapPin className="text-rose-500" size={22} /> Delivery Details
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                <InputGroup
+                  label="Contact Number"
+                  icon={<Phone size={18} />}
+                  value={contactNumber}
+                  onChange={(e) => setContactNumber(e.target.value)}
+                  placeholder="e.g. 9876543210"
+                />
+                <InputGroup
+                  label="Street / Area"
+                  icon={<Building size={18} />}
+                  value={addressDetails.address}
+                  onChange={handleAddressChange}
+                  name="address"
+                  placeholder="House no, Street"
+                />
+                <InputGroup
+                  label="City"
+                  icon={<Navigation size={18} />}
+                  value={addressDetails.city}
+                  onChange={handleAddressChange}
+                  name="city"
+                  placeholder="City Name"
+                />
+                <InputGroup
+                  label="Pincode"
+                  icon={<MapPin size={18} />}
+                  value={addressDetails.pin}
+                  onChange={handleAddressChange}
+                  name="pin"
+                  placeholder="6-digit PIN"
+                />
               </div>
-              <textarea
-                value={instructions}
-                onChange={(e) => setInstructions(e.target.value)}
-                placeholder="Any specific instructions for the delivery partner?"
-                className="w-full mt-4 bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:bg-white focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 transition-all resize-none h-20 placeholder:text-gray-400"
-              />
             </div>
           </div>
 
-          <div className="lg:w-95 space-y-6">
-            {itemTotal > 500 && (
-              <div className="bg-linear-to-r from-green-50 to-emerald-50 border border-green-100 rounded-xl p-4 flex items-start gap-3 relative overflow-hidden">
-                <div className="bg-green-100 p-2 rounded-full text-green-700 relative z-10">
-                  <TicketPercent size={18} />
-                </div>
-                <div className="relative z-10">
-                  <h4 className="font-bold text-green-800 text-sm">
-                    Free Delivery Unlocked!
-                  </h4>
-                  <p className="text-xs text-green-600 mt-0.5">
-                    You saved ₹40 on this order.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Bill Details */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-              <h3 className="font-bold text-gray-900 mb-5 font-(family-name:--font-outfit)">
+          <div className="lg:w-96">
+            <div className="bg-white rounded-3xl p-8 shadow-xl border border-gray-100 sticky top-28 transition-transform">
+              <h3 className="font-bold text-gray-900 mb-6 font-outfit text-xl">
                 Bill Summary
               </h3>
-
-              <div className="space-y-3 text-sm text-gray-600">
+              <div className="space-y-4 text-sm text-gray-600">
                 <div className="flex justify-between">
                   <span>Item Total</span>
-                  <span>₹{itemTotal}</span>
+                  <span className="font-bold text-gray-900">₹{itemTotal}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="flex items-center gap-1">
-                    Delivery Fee
-                    {itemTotal > 500 && (
-                      <span className="bg-green-100 text-green-700 text-[10px] font-bold px-1.5 rounded">
-                        FREE
-                      </span>
-                    )}
-                  </span>
-                  <span
-                    className={
-                      deliveryFee === 0 ? "text-green-600 font-medium" : ""
-                    }
-                  >
-                    {deliveryFee === 0 ? "₹0" : `₹${deliveryFee}`}
+                  <span>Delivery Fee</span>
+                  <span className="font-bold text-green-600 font-outfit">
+                    {deliveryFee === 0 ? "FREE" : `₹${deliveryFee}`}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="underline decoration-dotted decoration-gray-300 underline-offset-2">
-                    Platform Fee
+                  <span>Platform Fee</span>
+                  <span className="font-bold text-gray-900 font-outfit">
+                    ₹{platformFee}
                   </span>
-                  <span>₹{platformFee}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="underline decoration-dotted decoration-gray-300 underline-offset-2">
-                    GST (5%)
-                  </span>
-                  <span>₹{gst}</span>
+                <div className="flex justify-between border-t border-gray-100 pt-4 font-black text-gray-900 text-xl font-outfit">
+                  <span>To Pay</span>
+                  <span>₹{grandTotal}</span>
                 </div>
-              </div>
-
-              <div className="h-px bg-gray-100 my-4" />
-
-              <div className="flex justify-between items-center text-base font-black text-gray-900 font-(family-name:--font-outfit)">
-                <span>TO PAY</span>
-                <span className="text-lg">₹{grandTotal}</span>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.06)] border border-gray-100 sticky top-24">
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`p-2.5 rounded-xl ${userAddress ? "bg-gray-100 text-gray-600" : "bg-red-50 text-red-500"}`}
-                  >
-                    {userAddress ? (
-                      <MapPin size={18} />
-                    ) : (
-                      <AlertCircle size={18} />
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                      DELIVERING TO
-                    </p>
-                    {userAddress ? (
-                      <p className="text-sm font-bold text-gray-900 truncate max-w-35">
-                        {userAddress}
-                      </p>
-                    ) : (
-                      <p className="text-sm font-bold text-red-500">
-                        Address missing
-                      </p>
-                    )}
-                  </div>
-                </div>
-                {/* In a real app, this would open an address modal */}
-                <button className="text-rose-600 text-xs font-bold hover:bg-rose-50 px-2 py-1 rounded transition-colors">
-                  {userAddress ? "CHANGE" : "ADD"}
-                </button>
               </div>
 
               <button
                 onClick={handlePlaceOrder}
-                disabled={!userAddress}
-                className={`w-full py-3.5 rounded-xl font-bold text-base shadow-lg flex items-center justify-between px-5 group transition-all
-                   ${
-                     userAddress
-                       ? "bg-gray-900 text-white hover:bg-black hover:scale-[1.02] shadow-gray-900/20"
-                       : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                   }
-                 `}
+                disabled={isPlacing}
+                className={`w-full mt-8 py-4 rounded-2xl font-bold text-white shadow-2xl transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer group ${isPlacing ? "bg-gray-400" : "bg-gray-900 hover:bg-black hover:translate-y-0.5 active:scale-95"}`}
               >
-                <span>Pay ₹{grandTotal}</span>
-                <span
-                  className={`flex items-center gap-2 px-2 py-1 rounded-lg text-xs font-medium transition-colors ${userAddress ? "bg-white/20 group-hover:bg-white/30" : "bg-transparent"}`}
-                >
-                  Proceed <ArrowRight size={14} />
-                </span>
+                {isPlacing ? (
+                  "Processing..."
+                ) : (
+                  <>
+                    Pay & Place Order{" "}
+                    <ArrowRight
+                      size={18}
+                      className="group-hover:translate-x-1 transition-transform"
+                    />
+                  </>
+                )}
               </button>
 
-              <div className="mt-4 flex items-center justify-center gap-2 text-[10px] text-gray-400 font-medium uppercase tracking-wider">
-                <ShieldCheck size={12} className="text-green-500" /> 100% Safe
-                Payments
+              <div className="mt-6 flex items-center justify-center gap-2 text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                <ShieldCheck size={14} className="text-green-500" /> 100% Secure
+                Checkout
               </div>
             </div>
           </div>
         </div>
       </main>
-
       <Footer />
     </div>
   );
 };
 
+const InputGroup = ({ label, icon, ...props }) => (
+  <div className="space-y-2 group">
+    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest group-focus-within:text-rose-500 transition-colors">
+      {label}
+    </label>
+    <div className="flex items-center gap-3 border border-gray-100 rounded-2xl p-4 bg-gray-50/50 focus-within:bg-white focus-within:border-rose-500 focus-within:ring-4 focus-within:ring-rose-500/10 transition-all cursor-text">
+      <span className="text-gray-400 group-focus-within:text-rose-500 transition-colors">
+        {icon}
+      </span>
+      <input
+        {...props}
+        className="bg-transparent w-full outline-none text-sm font-medium text-gray-800"
+      />
+    </div>
+  </div>
+);
+
+const CartItemRow = ({ item, onAdd, onRemove }) => (
+  <div className="flex justify-between items-center bg-gray-50/30 p-3 rounded-2xl border border-transparent hover:border-gray-100 hover:bg-white transition-all group">
+    <div className="flex gap-4 items-center">
+      <div className="relative overflow-hidden rounded-xl">
+        <img
+          src={item.image || item.photo?.url || "https://placehold.co/100"}
+          className="w-16 h-16 object-cover transition-transform group-hover:scale-110"
+          alt={item.itemName}
+        />
+      </div>
+      <div>
+        <p className="text-sm font-bold text-gray-900 line-clamp-1">
+          {item.itemName}
+        </p>
+        <div className="flex items-center gap-4 mt-2">
+          <button
+            onClick={onRemove}
+            className="w-8 h-8 flex items-center justify-center bg-white border border-gray-200 rounded-lg hover:text-rose-600 hover:border-rose-600 transition-all cursor-pointer active:scale-90"
+          >
+            <Minus size={14} />
+          </button>
+          <span className="text-sm font-black w-4 text-center">{item.qty}</span>
+          <button
+            onClick={onAdd}
+            className="w-8 h-8 flex items-center justify-center bg-white border border-gray-200 rounded-lg hover:text-rose-600 hover:border-rose-600 transition-all cursor-pointer active:scale-90"
+          >
+            <Plus size={14} />
+          </button>
+        </div>
+      </div>
+    </div>
+    <div className="text-right">
+      <p className="font-black text-sm text-gray-900">
+        ₹{item.price * item.qty}
+      </p>
+      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter mt-1">
+        ₹{item.price} each
+      </p>
+    </div>
+  </div>
+);
+
+const SuccessView = ({ onContinue }) => (
+  <div className="min-h-screen bg-rose-50 flex flex-col items-center justify-center p-6 text-center animate-in zoom-in duration-300">
+    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6 shadow-lg animate-bounce">
+      <CheckCircle2 size={48} className="text-green-600" />
+    </div>
+    <h2 className="text-3xl font-bold font-outfit text-gray-900 mb-2">
+      Order Confirmed!
+    </h2>
+    <p className="text-gray-500 mb-8 max-w-sm">
+      The restaurant has received your request and started cooking!
+    </p>
+    <button
+      onClick={onContinue}
+      className="px-10 py-3 bg-rose-600 text-white rounded-xl font-bold shadow-lg shadow-rose-200 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+    >
+      Back to Cart
+    </button>
+  </div>
+);
+
+const EmptyCartView = () => (
+  <div className="min-h-screen bg-rose-50 flex flex-col items-center justify-center p-4">
+    <UtensilsCrossed size={80} className="text-gray-200 mb-6 animate-pulse" />
+    <h2 className="text-2xl font-bold text-gray-900 font-outfit mb-2 text-center">
+      Your cart is empty!
+    </h2>
+    <Link
+      to="/"
+      className="px-8 py-3 bg-rose-600 text-white rounded-xl font-bold shadow-lg shadow-rose-200 mt-6 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+    >
+      Browse Restaurants
+    </Link>
+  </div>
+);
+
 const Loader = () => (
-  <div className="w-10 h-10 border-4 border-gray-200 border-t-rose-600 rounded-full animate-spin"></div>
+  <div className="w-12 h-12 border-4 border-gray-200 border-t-rose-500 rounded-full animate-spin"></div>
 );
 
 export default Cart;

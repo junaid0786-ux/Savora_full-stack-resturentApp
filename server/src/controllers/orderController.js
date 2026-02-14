@@ -1,61 +1,59 @@
-import Order from "../models/OrderModel.js";  
+import Order from "../models/OrderModel.js";
 import MenuItem from "../models/menuSchema.js";
 
 export const createOrder = async (req, res, next) => {
   try {
     const { restaurantID, items, deliveryAddress, contactNumber } = req.body;
 
-    if (
-      !restaurantID ||
-      !items ||
-      items.length === 0 ||
-      !deliveryAddress ||
-      !contactNumber
-    ) {
-      const error = new Error("Please provide all required order details");
-      error.statusCode = 400;
-      return next(error);
-    }
-
-    let calculatedTotal = 0;
-    const processedItems = [];
-
-    for (const item of items) {
-      const menuProduct = await MenuItem.findById(item.menuItemID);
-
-      if (!menuProduct) {
-        return res.status(404).json({
-          success: false,
-          message: `Menu item ${item.itemName} not found`,
-        });
-      }
-
-      const itemPrice = parseFloat(menuProduct.price);
-      calculatedTotal += itemPrice * item.quantity;
-
-      processedItems.push({
-        menuItemID: menuProduct._id,
-        itemName: menuProduct.itemName,
-        quantity: item.quantity,
-        price: itemPrice,
+    if (!restaurantID || !items?.length || !deliveryAddress || !contactNumber) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide all required order details",
       });
     }
 
-    const newOrder = new Order({
-      customerID: req.user.id,  
+    let calculatedTotal = 0;
+    const processedItems = await Promise.all(
+      items.map(async (item) => {
+        const menuProduct = await MenuItem.findById(item.menuItemID);
+        if (!menuProduct)
+          throw new Error(`Menu item ${item.menuItemID} not found`);
+
+        const itemPrice = parseFloat(menuProduct.price);
+        calculatedTotal += itemPrice * item.quantity;
+
+        return {
+          menuItemID: menuProduct._id,
+          itemName: menuProduct.itemName,
+          quantity: item.quantity,
+          price: itemPrice,
+        };
+      }),
+    );
+
+    const newOrder = await Order.create({
+      customerID: req.user.id,
       restaurantID,
       items: processedItems,
       totalAmount: calculatedTotal,
       deliveryAddress,
       contactNumber,
+      status: "pending",
     });
 
-    await newOrder.save();
+    const populatedOrder = await Order.findById(newOrder._id)
+      .populate("customerID", "fullName email photo")
+      .populate("restaurantID", "restaurantName");
+
+    const io = req.app.get("io");
+    if (io) {
+      io.to(restaurantID).emit("new_order", populatedOrder);
+    }
 
     res.status(201).json({
       success: true,
       message: "Order placed successfully",
-      data: newOrder,
+      data: populatedOrder,
     });
   } catch (error) {
     next(error);
@@ -91,23 +89,34 @@ export const updateOrderStatus = async (req, res, next) => {
       "delivered",
       "cancelled",
     ];
-
     if (!validStatuses.includes(status)) {
-      const error = new Error("Invalid order status");
-      error.statusCode = 400;
-      return next(error);
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid order status" });
     }
 
     const updatedOrder = await Order.findByIdAndUpdate(
       orderId,
       { status },
       { new: true },
-    );
+    ).populate("customerID", "fullName email");
 
     if (!updatedOrder) {
       return res
         .status(404)
         .json({ success: false, message: "Order not found" });
+    }
+
+    const io = req.app.get("io");
+    if (io) {
+      io.to(updatedOrder.customerID._id.toString()).emit(
+        "order_status_updated",
+        {
+          orderId: updatedOrder._id,
+          status: updatedOrder.status,
+          message: `Your order is now ${status}`,
+        },
+      );
     }
 
     res.status(200).json({
@@ -127,10 +136,7 @@ export const getPendingNotificationCount = async (req, res, next) => {
       status: "pending",
     });
 
-    res.status(200).json({
-      success: true,
-      count,
-    });
+    res.status(200).json({ success: true, count });
   } catch (error) {
     next(error);
   }

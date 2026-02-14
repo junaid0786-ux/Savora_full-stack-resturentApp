@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-
+import { socket } from "../config/socket.js";
 const AuthContext = React.createContext();
 
 export const AuthProvider = (props) => {
@@ -12,8 +12,25 @@ export const AuthProvider = (props) => {
   useEffect(() => {
     setIsLogin(!!user);
     setRole(user?.role || null);
-  }, [user]);
 
+    if (user) {
+      if (!socket.connected) {
+        socket.connect();
+      }
+
+      if (user._id) {
+        socket.emit("join_room", user._id);
+      }
+
+      if (user.restaurantId) {
+        socket.emit("join_room", user.restaurantId);
+      }
+    } else {
+      if (socket.connected) {
+        socket.disconnect();
+      }
+    }
+  }, [user]);
   const logout = () => {
     sessionStorage.removeItem("user");
     setUser(null);

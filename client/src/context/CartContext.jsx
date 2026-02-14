@@ -4,21 +4,19 @@ import toast from "react-hot-toast";
 
 const CartContext = createContext();
 
-export const useCart = () => {
-  return useContext(CartContext);
-};
+export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
   const { isLogin } = useAuth();
 
   const [cartItems, setCartItems] = useState(() => {
-    const saved = localStorage.getItem("savora_cart");
-    return saved ? JSON.parse(saved) : [];
+    const savedItems = localStorage.getItem("savora_cart");
+    return savedItems ? JSON.parse(savedItems) : [];
   });
 
   const [restaurant, setRestaurant] = useState(() => {
-    const saved = localStorage.getItem("savora_cart_rest");
-    return saved ? JSON.parse(saved) : null;
+    const savedRest = localStorage.getItem("savora_cart_rest");
+    return savedRest ? JSON.parse(savedRest) : null;
   });
 
   useEffect(() => {
@@ -27,9 +25,10 @@ export const CartProvider = ({ children }) => {
   }, [cartItems, restaurant]);
 
   const addToCart = (item, currentRestaurant) => {
+    const toastId = "cart-action";
+
     if (!isLogin) {
-      toast.error("Please login to add items to cart");
-      return;
+      return toast.error("Please login to add items", { id: toastId });
     }
 
     if (
@@ -39,12 +38,16 @@ export const CartProvider = ({ children }) => {
       cartItems.length > 0
     ) {
       const confirmSwitch = window.confirm(
-        `Your cart contains items from ${restaurant.restaurantName}. Reset cart to add items from ${currentRestaurant.restaurantName}?`,
+        `Your cart has items from ${restaurant.restaurantName}. Reset cart for ${currentRestaurant.restaurantName}?`,
       );
+
       if (confirmSwitch) {
         setCartItems([{ ...item, qty: 1 }]);
         setRestaurant(currentRestaurant);
-        toast.success(`${item.itemName} added to cart`);
+        toast.success(
+          `Started new cart at ${currentRestaurant.restaurantName}`,
+          { id: toastId },
+        );
       }
       return;
     }
@@ -53,42 +56,35 @@ export const CartProvider = ({ children }) => {
       if (currentRestaurant) setRestaurant(currentRestaurant);
     }
 
-    const existingItem = cartItems.find((i) => i._id === item._id);
-    if (existingItem) {
-      toast.success(`Quantity updated: ${item.itemName}`);
-    } else {
-      toast.success(`${item.itemName} added to cart`);
-    }
-
     setCartItems((prev) => {
       const existing = prev.find((i) => i._id === item._id);
       if (existing) {
+        toast.success(`Increased ${item.itemName} quantity`, { id: toastId });
         return prev.map((i) =>
           i._id === item._id ? { ...i, qty: i.qty + 1 } : i,
         );
+      } else {
+        toast.success(`${item.itemName} added to cart`, { id: toastId });
+        return [...prev, { ...item, qty: 1 }];
       }
-      return [...prev, { ...item, qty: 1 }];
     });
   };
 
   const removeFromCart = (itemId) => {
-    const existingItem = cartItems.find((i) => i._id === itemId);
-    if (!existingItem) return;
-
-    if (existingItem.qty === 1) {
-      toast.success("Item removed from cart");
-    }
+    const toastId = "cart-action";
 
     setCartItems((prev) => {
-      const existing = prev.find((i) => i._id === itemId);
-      if (!existing) return prev;
+      const itemToUpdate = prev.find((i) => i._id === itemId);
+      if (!itemToUpdate) return prev;
 
-      if (existing.qty === 1) {
+      if (itemToUpdate.qty === 1) {
+        toast.success("Item removed from cart", { id: toastId });
         const newCart = prev.filter((i) => i._id !== itemId);
         if (newCart.length === 0) setRestaurant(null);
         return newCart;
       }
 
+      toast.success("Reduced item quantity", { id: toastId });
       return prev.map((i) => (i._id === itemId ? { ...i, qty: i.qty - 1 } : i));
     });
   };
@@ -96,30 +92,22 @@ export const CartProvider = ({ children }) => {
   const clearCart = () => {
     setCartItems([]);
     setRestaurant(null);
-    toast.success("Cart cleared");
+    toast.success("Cart cleared", { id: "cart-action" });
   };
 
-  const getCartCount = () => {
-    return cartItems.reduce((total, item) => total + item.qty, 0);
+  const getCartCount = () => cartItems.reduce((acc, item) => acc + item.qty, 0);
+  const getCartTotal = () =>
+    cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
+
+  const value = {
+    cartItems,
+    restaurant,
+    addToCart,
+    removeFromCart,
+    clearCart,
+    getCartCount,
+    getCartTotal,
   };
 
-  const getCartTotal = () => {
-    return cartItems.reduce((total, item) => total + item.price * item.qty, 0);
-  };
-
-  return (
-    <CartContext.Provider
-      value={{
-        cartItems,
-        restaurant,
-        addToCart,
-        removeFromCart,
-        clearCart,
-        getCartCount,
-        getCartTotal,
-      }}
-    >
-      {children}
-    </CartContext.Provider>
-  );
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
