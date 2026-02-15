@@ -14,6 +14,7 @@ import RiderDashboard from "./pages/dashboards/RiderDashboard";
 import Order from "./pages/Order";
 import RestaurantDetails from "./pages/RestaurantDetails";
 import Cart from "./pages/Cart";
+import RestaurantOrders from "./components/resturentDashboard/RestaurantOrders";
 
 const App = () => {
   return (
@@ -28,8 +29,9 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/order" element={<Order />} />
-          <Route path="/restaurant/:id" element={<RestaurantDetails/>}/>
-          <Route path="/cart" element={<Cart/>} />
+          <Route path="/restaurant/:id" element={<RestaurantDetails />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/manager/order" element={<RestaurantOrders />} />
 
           <Route path="/user-dashboard" element={<UserDashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />

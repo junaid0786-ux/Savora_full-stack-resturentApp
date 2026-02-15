@@ -1,15 +1,25 @@
 import express from "express";
-import { authUser, restaurantProtect } from "../middlewares/authMiddleware.js";
+import {
+  authUser,
+  restaurantProtect,
+  customerProtect,
+} from "../middlewares/authMiddleware.js";
 import {
   createOrder,
   getRestaurantOrders,
   updateOrderStatus,
   getPendingNotificationCount,
+  getCustomerOrders,
+  getOrderById,
 } from "../controllers/orderController.js";
 
 const router = express.Router();
 
-router.post("/create", authUser, createOrder);
+router.post("/create", authUser, customerProtect, createOrder);
+
+router.get("/my-orders", authUser, customerProtect, getCustomerOrders);
+
+router.get("/track/:orderId", authUser, getOrderById);
 
 router.get(
   "/restaurant-orders",

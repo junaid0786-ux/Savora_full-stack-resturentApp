@@ -4,6 +4,7 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import jwt from "jsonwebtoken";
 import { createServer } from "http";
 import { Server } from "socket.io";
 
@@ -29,16 +30,42 @@ const io = new Server(httpServer, {
   },
 });
 
+io.use((socket, next) => {
+  try {
+    const token = socket.handshake.auth.token;
+
+    if (!token) {
+      return next(new Error("Authentication error: Token missing"));
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    socket.user = {
+      id: decoded._id,
+      role: decoded.role,
+    };
+
+    next();
+  } catch (error) {
+    console.error("Socket Auth Error:", error.message);
+    return next(new Error("Authentication error: Invalid token"));
+  }
+});
+
 io.on("connection", (socket) => {
-  console.log(`🔌 New Connection: ${socket.id}`);
+  console.log(`Secure Connection: ${socket.id} (User: ${socket.user.id})`);
 
   socket.on("join_room", (room) => {
-    socket.join(room);
-    console.log(`User ${socket.id} joined room: ${room}`);
+    if (socket.user.id === room) {
+      socket.join(room);
+      console.log(`Room Joined: ${room} by ${socket.user.role}`);
+    } else {
+      console.log(`Unauthorized Room Access attempt for: ${room}`);
+    }
   });
 
   socket.on("disconnect", () => {
-    console.log("User Disconnected", socket.id);
+    console.log("🔌 User Disconnected", socket.id);
   });
 });
 

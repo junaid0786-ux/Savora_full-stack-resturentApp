@@ -141,3 +141,51 @@ export const getPendingNotificationCount = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getCustomerOrders = async (req, res, next) => {
+  try {
+    const orders = await Order.find({ customerID: req.user.id })
+      .populate("restaurantID", "restaurantName photo")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: orders.length,
+      data: orders,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getOrderById = async (req, res, next) => {
+  try {
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId)
+      .populate("restaurantID", "restaurantName mobileNumber")
+      .populate("customerID", "fullName");
+
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+    }
+
+    const isCustomer = order.customerID._id.toString() === req.user.id;
+    const isRestaurant = order.restaurantID._id.toString() === req.user.id;
+
+    if (!isCustomer && !isRestaurant) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Unauthorized to view this order" });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: order,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

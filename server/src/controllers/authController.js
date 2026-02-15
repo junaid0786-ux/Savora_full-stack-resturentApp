@@ -42,6 +42,7 @@ export const UserLogin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
+    // 1. Validation
     if (!email || !password) {
       const error = new Error("All fields required");
       error.statusCode = 400;
@@ -62,13 +63,15 @@ export const UserLogin = async (req, res, next) => {
       return next(error);
     }
 
-    genToken(existingUser, res);
+    const token = genToken(existingUser, res);
 
     res.status(200).json({
+      success: true,
       message: "Login Successful",
       data: existingUser,
+      token: token,
     });
-  } catch (error) {
+  } catch {
     next(error);
   }
 };

@@ -57,9 +57,16 @@ const Login = () => {
       const { data } = await api.post("/auth/login", formData);
 
       const userData = data?.data || data?.user;
+      const token = data?.token; // 1. Extract the token
+
       if (!userData) {
         toast.error("Login failed");
         return;
+      }
+
+      // 2. Save the token specifically for the Socket Connection
+      if (token) {
+        sessionStorage.setItem("socket_token", token);
       }
 
       sessionStorage.setItem("user", JSON.stringify(userData));
@@ -96,7 +103,10 @@ const Login = () => {
               Email Address
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-3.5 text-gray-400" size={20} />
+              <Mail
+                className="absolute left-3 top-3.5 text-gray-400"
+                size={20}
+              />
               <input
                 className={getInputClass(errors.email)}
                 type="email"
@@ -116,7 +126,10 @@ const Login = () => {
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3.5 text-gray-400" size={20} />
+              <Lock
+                className="absolute left-3 top-3.5 text-gray-400"
+                size={20}
+              />
               <input
                 className={getInputClass(errors.password)}
                 type="password"
