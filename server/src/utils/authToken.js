@@ -19,9 +19,9 @@ export const genToken = (user, res) => {
     });
 
     console.log("Oreo cookie set:", token);
-    
+
     // CRITICAL FIX: Return the token so the controller can use it!
-    return token; 
+    return token;
   } catch (error) {
     throw error;
   }
@@ -46,7 +46,6 @@ export const genOtpToken = (user, res) => {
       sameSite: "lax",
     });
 
-    // CRITICAL FIX: Return the OTP token too
     return token;
   } catch (error) {
     throw error;

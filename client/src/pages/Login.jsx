@@ -57,14 +57,13 @@ const Login = () => {
       const { data } = await api.post("/auth/login", formData);
 
       const userData = data?.data || data?.user;
-      const token = data?.token; // 1. Extract the token
+      const token = data?.token;
 
       if (!userData) {
         toast.error("Login failed");
         return;
       }
 
-      // 2. Save the token specifically for the Socket Connection
       if (token) {
         sessionStorage.setItem("socket_token", token);
       }
